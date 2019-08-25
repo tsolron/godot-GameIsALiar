@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/swordman.png-71713cc1ea58df945223566721d9514b.stex"
+path="res://.import/Player.png-73a61efc1be90d9599c7171dcb671071.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/swordman.png"
-dest_files=[ "res://.import/swordman.png-71713cc1ea58df945223566721d9514b.stex" ]
+source_file="res://scripts/Player.png"
+dest_files=[ "res://.import/Player.png-73a61efc1be90d9599c7171dcb671071.stex" ]
 
 [params]
 
