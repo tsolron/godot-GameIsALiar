@@ -15,9 +15,9 @@ const MIN_ROOM_DIMENSION = 5;
 const MAX_ROOM_DIMENSION = 8;
 
 # Wall: Perimeter of a room
-# Door: 
+# Door: Barrier between a room and hallway. Takes one turn to open
 # Floor: Inside a room
-# Ladder: 
+# Ladder: Connects different levels
 # Stone: Default everywhere
 enum Tile {Wall, Door, Floor, Ladder, Stone}
 
@@ -44,11 +44,14 @@ func _ready():
 	randomize();
 	build_level();
 
-
+# Auto called whenever there's an input event
 func _input(event):
+	# Ignore events that aren't key presses
 	if (!event.is_pressed()):
 		return;
 	
+	# If one of our input actions, do that action.
+	# Note that key binds are in project settings, these are just the actions those bind to
 	if (event.is_action("Left")):
 		try_move(-1, 0);
 	if (event.is_action("Right")):
@@ -64,13 +67,18 @@ func try_move(dx, dy):
 	var y = player_tile.y + dy;
 	
 	var tile_type = Tile.Stone;
+	# Make sure the desired move location is in-bounds for our map array
 	if (x >= 0 && x < level_size.x && y >= 0 && y < level_size.y):
 		tile_type = map[x][y];
 	
+	# Match is like a switch/case statement in other languages.
 	match tile_type:
 		Tile.Floor:
+			# If you're trying to move onto Floor, success!
 			player_tile = Vector2(x, y);
 		Tile.Door:
+			# If you're trying to open a door, you did it!
+			# Next turn you can move to where the door was
 			set_tile(x, y, Tile.Floor);
 	
 	update_visuals();
@@ -105,6 +113,7 @@ func build_level():
 	update_visuals();
 
 func update_visuals():
+	# Currently only updates the player position, but more will be here later
 	player.position = player_tile * TILE_SIZE;
 
 
@@ -139,7 +148,8 @@ func connect_rooms():
 		var room_center = room.position + room.size / 2;
 		room_graph.add_point(point_id, Vector3(room_center.x, room_center.y, 0));
 		point_id += 1;
-		
+	
+	# Until all rooms are connected, keep adding connections
 	while (!is_everything_connected(room_graph)):
 		add_random_connection(stone_graph, room_graph);
 
