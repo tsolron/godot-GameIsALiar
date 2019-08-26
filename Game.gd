@@ -11,8 +11,10 @@ const LEVEL_SIZES = [
 ];
 
 const LEVEL_ROOM_COUNTS = [5, 7, 9, 12, 15];
+const LEVEL_ENEMY_COUNTS = [5, 8, 12, 18, 26];
 const MIN_ROOM_DIMENSION = 5;
 const MAX_ROOM_DIMENSION = 8;
+const PLAYER_START_HP = 5;
 
 # Wall: Perimeter of a room
 # Door: Barrier between a room and hallway. Takes one turn to open
@@ -21,21 +23,91 @@ const MAX_ROOM_DIMENSION = 8;
 # Stone: Default everywhere
 enum Tile {Wall, Door, Floor, Ladder, Stone}
 
+# Get a reference to the enemy scene 
+const EnemyScene = preload("res://scenes/Enemy.tscn");
 
+# Could create this on a script attached to the Enemy, but this works
+# extending Reference means it'll be deallocated from memory once it is no longer referenced
+#   though honestly don't 100% understand how it works
+class Enemy extends Reference:
+	var sprite_node;
+	var tile;
+	var max_hp;
+	var hp;
+	var is_dead = false;
+	
+	func _init(game, enemy_level, x, y):
+		max_hp = 1 + enemy_level * 2;
+		hp = max_hp;
+		tile = Vector2(x, y);
+		sprite_node = EnemyScene.instance();
+		# If using a sprite sheet, this may be different from 0 (ex. a function of enemy_level)
+		sprite_node.frame = 0;
+		sprite_node.position = tile * TILE_SIZE;
+		game.add_child(sprite_node);
+	
+	func remove():
+		# Helps with deallocation of the sprite
+		sprite_node.queue_free();
+	
+	func take_damage(game, dmg):
+		# Just in case
+		if (is_dead):
+			return;
+		
+		hp = max(0, hp - dmg); # doesn't go below 0
+		sprite_node.get_node("HP").rect_size.x = TILE_SIZE * hp / max_hp;
+		
+		if (hp == 0):
+			is_dead = true;
+			game.score += 10 * max_hp;
+	
+	func act(game):
+		# If you can't see it, it can't see you
+		if (!sprite_node.visible):
+			return;
+		var my_point = game.enemy_pathfinding.get_closest_point(Vector3(tile.x, tile.y, 0));
+		var player_point = game.enemy_pathfinding.get_closest_point(Vector3(game.player_tile.x, game.player_tile.y, 0));
+		# Try to find a path between the enemy's location and the player
+		var path = game.enemy_pathfinding.get_point_path(my_point, player_point);
+		if (path):
+			# Must be at least 2 long (enemy tile, *stuff in middle*, player tile)
+			assert(path.size() > 1);
+			
+			# Try to move to the next tile
+			var move_tile = Vector2(path[1].x, path[1].y);
+			
+			if (move_tile == game.player_tile):
+				# if next to the player, deal 1 damage to them
+				game.damage_player(1);
+			else:
+				# If not next to the player, check if another enemy is blocking this enemy's movement
+				var is_blocked = false;
+				for enemy in game.enemies:
+					if (enemy.tile == move_tile):
+						is_blocked = true;
+						break;
+				
+				# If not blocked, move to that tile
+				if (!is_blocked):
+					tile = move_tile;
 
 # This level
 var level_num = 0;
 var map = [];
 var rooms = [];
 var level_size;
+var enemies = [];
 
 # Get nodes but after they exist
 onready var tile_map = $TileMap;
+onready var visibility_map = $VisiblityMap;
 onready var player = $Player;
 
 var player_tile;
+var player_hp = PLAYER_START_HP;
 var score = 0;
-
+var enemy_pathfinding;
 
 
 # Called when the node enters the scene tree for the first time.
@@ -43,6 +115,7 @@ func _ready():
 	OS.set_window_size(Vector2(1280, 720));
 	randomize();
 	build_level();
+
 
 # Auto called whenever there's an input event
 func _input(event):
@@ -74,8 +147,26 @@ func try_move(dx, dy):
 	# Match is like a switch/case statement in other languages.
 	match tile_type:
 		Tile.Floor:
-			# If you're trying to move onto Floor, success!
-			player_tile = Vector2(x, y);
+			# If you try to move onto an Enemy, deal damage to it instead
+			# If killed, an enemy will disappear but you'll have to wait a turn to move there
+			var is_blocked = false;
+			for enemy in enemies:
+				if (enemy.tile.x == x && enemy.tile.y == y):
+					# Only deals 1 damage each attack for now
+					enemy.take_damage(self, 1);
+					if (enemy.is_dead):
+						enemy.remove();
+						enemies.erase(enemy);
+					is_blocked = true;
+					break;
+				
+			# If you're trying to move onto Floor and there are no enemies, success!
+			if (!is_blocked):
+				player_tile = Vector2(x, y);
+				if (player.flip_h && dx > 0):
+					player.flip_h = false;
+				elif (dx < 0):
+					player.flip_h = true;
 		
 		Tile.Door:
 			# If you're trying to open a door, you did it!
@@ -94,7 +185,17 @@ func try_move(dx, dy):
 				score += 1000;
 				$CanvasLayer/Win.visible = true;
 	
-	update_visuals();
+	# Whenever the player moves, the game progresses one tick (ex. enemies move)
+	tick();
+	
+	# Waits a frame to render
+	call_deferred("update_visuals");
+	#update_visuals();
+
+
+func tick():
+	for enemy in enemies:
+		enemy.act(self);
 
 
 func build_level():
@@ -102,12 +203,19 @@ func build_level():
 	map.clear();
 	tile_map.clear();
 	
+	for enemy in enemies:
+		enemy.remove();
+	enemies.clear();
+	
+	enemy_pathfinding = AStar.new();
+	
 	level_size = LEVEL_SIZES[level_num];
 	for x in range(level_size.x):
 		map.append([]);
 		for y in range(level_size.y):
 			map[x].append(Tile.Stone);
 			tile_map.set_cell(x, y, Tile.Stone);
+			visibility_map.set_cell(x, y, 0);
 	
 	var free_regions = [Rect2(Vector2(2, 2), level_size - Vector2(4, 4))];
 	var num_rooms = LEVEL_ROOM_COUNTS[level_num];
@@ -123,7 +231,30 @@ func build_level():
 	var player_x = start_room.position.x + 1 + randi() % int(start_room.size.x - 2);
 	var player_y = start_room.position.y + 1 + randi() % int(start_room.size.y - 2);
 	player_tile = Vector2(player_x, player_y);
-	update_visuals();
+	# Waits one frame before calling update_visuals() so all objects exist at first run
+	call_deferred("update_visuals");
+	
+	# Place enemies in the level
+	var num_enemies = LEVEL_ENEMY_COUNTS[level_num];
+	for i in range(num_enemies):
+		# Place in random rooms, excluding the player's starting room
+		var room = rooms[1 + randi() % (rooms.size() - 1)];
+		# Place in a random location within the room
+		var x = room.position.x + 1 + randi() % int(room.size.x - 2);
+		var y = room.position.y + 1 + randi() % int(room.size.y - 2);
+		
+		# And confirm no enemies are already on the chosen tile
+		var blocked = false;
+		for enemy in enemies:
+			if (enemy.tile.x == x && enemy.tile.y == y):
+				blocked = true;
+				break;
+		
+		# If it is blocked, it's skipped. Could change this to re-pick locations until a valid spot is found
+		if (!blocked):
+			var enemy = Enemy.new(self, 0, x, y);
+			enemies.append(enemy);
+		
 	
 	# Place end-of-level Ladder, last room used since it's all random
 	var end_room = rooms.back();
@@ -134,9 +265,64 @@ func build_level():
 	# Update UI
 	$CanvasLayer/Level.text = "LEVEL: " + str(level_num);
 
+
 func update_visuals():
 	# Currently only updates the player position, but more will be here later
 	player.position = player_tile * TILE_SIZE;
+	
+	$CanvasLayer/HP.text = "HP: " + str(player_hp);
+	$CanvasLayer/Score.text = "SCORE: " + str(score);
+	
+	var player_center = tile_to_pixel_center(player_tile.x, player_tile.y);
+	var space_state = get_world_2d().direct_space_state;
+	for x in range(level_size.x):
+		for y in range(level_size.y):
+			if (visibility_map.get_cell(x, y) == 0):
+				var x_dir = (1 if (x < player_tile.x) else (-1));
+				var y_dir = (1 if (y < player_tile.y) else (-1));
+				var test_point = tile_to_pixel_center(x, y) + Vector2(x_dir, y_dir)*(TILE_SIZE / 2);
+				
+				var occlusion = space_state.intersect_ray(player_center, test_point);
+				# If no occlusion, or if the object causing occlusion is itself
+				if (!occlusion || (occlusion.position - test_point).length() < 1):
+					visibility_map.set_cell(x, y, -1);
+	
+	# Update enemy sprite locations
+	for enemy in enemies:
+		enemy.sprite_node.position = enemy.tile * TILE_SIZE;
+		if (!enemy.sprite_node.visible):
+			var enemy_center = tile_to_pixel_center(enemy.tile.x, enemy.tile.y);
+			var occlusion = space_state.intersect_ray(player_center, enemy_center);
+			if (!occlusion):
+				enemy.sprite_node.visible = true;
+
+
+# TODO: Comment this
+func clear_path(tile):
+	var new_point = enemy_pathfinding.get_available_point_id();
+	enemy_pathfinding.add_point(new_point, Vector3(tile.x, tile.y, 0));
+	
+	var points_to_connect = [];
+	
+	# Check Left
+	if (tile.x > 0 && map[tile.x-1][tile.y] == Tile.Floor):
+		points_to_connect.append(enemy_pathfinding.get_closest_point(Vector3(tile.x - 1, tile.y, 0)));
+	# Check Up
+	if (tile.y > 0 && map[tile.x][tile.y-1] == Tile.Floor):
+		points_to_connect.append(enemy_pathfinding.get_closest_point(Vector3(tile.x, tile.y - 1, 0)));
+	# Check Right
+	if (tile.x < level_size.x - 1 && map[tile.x+1][tile.y] == Tile.Floor):
+		points_to_connect.append(enemy_pathfinding.get_closest_point(Vector3(tile.x + 1, tile.y, 0)));
+	# Check Down
+	if (tile.y < level_size.y - 1 && map[tile.x][tile.y+1] == Tile.Floor):
+		points_to_connect.append(enemy_pathfinding.get_closest_point(Vector3(tile.x, tile.y + 1, 0)));
+	
+	for point in points_to_connect:
+		enemy_pathfinding.connect_points(point, new_point);
+
+
+func tile_to_pixel_center(x, y):
+	return Vector2((x + 0.5) * TILE_SIZE, (y + 0.5) * TILE_SIZE);
 
 
 func connect_rooms():
@@ -376,9 +562,21 @@ func set_tile(x, y, type):
 	map[x][y] = type;	
 	tile_map.set_cell(x, y, type);
 	
+	if (type == Tile.Floor):
+		clear_path(Vector2(x, y));
+
+
+func damage_player(dmg):
+	# Don't go below 0 hp
+	player_hp = max(0, player_hp - dmg);
+	if (player_hp == 0):
+		$CanvasLayer/Lose.visible = true;
+
 
 func _on_ResetBtn_pressed():
 	level_num = 0;
 	score = 0;
 	build_level();
 	$CanvasLayer/Win.visible = false;
+	$CanvasLayer/Lose.visible = false;
+	player_hp = PLAYER_START_HP;
