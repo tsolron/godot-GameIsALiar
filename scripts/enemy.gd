@@ -29,7 +29,7 @@ func _init(game, enemy_level, x, y):
 	sprite_node = EnemyScene.instance();
 	# If using a sprite sheet, this may be different from 0 (ex. a function of enemy_level)
 	sprite_node.frame = 0;
-	sprite_node.position = tile * game.TILE_SIZE;
+	sprite_node.position = tile * game.level.TILE_SIZE;
 	game.add_child(sprite_node);
 
 
@@ -44,7 +44,7 @@ func take_damage(game, dmg):
 		return;
 	
 	hp = max(0, hp - dmg); # doesn't go below 0
-	sprite_node.get_node("HP").rect_size.x = game.TILE_SIZE * hp / max_hp;
+	sprite_node.get_node("HP").rect_size.x = game.level.TILE_SIZE * hp / max_hp;
 	
 	if (hp == 0):
 		is_dead = true;
@@ -55,10 +55,10 @@ func act(game):
 	# If you can't see it, it can't see you
 	if (!sprite_node.visible):
 		return;
-	var my_point = game.enemy_pathfinding.get_closest_point(Vector3(tile.x, tile.y, 0));
-	var player_point = game.enemy_pathfinding.get_closest_point(Vector3(game.player_tile.x, game.player_tile.y, 0));
+	var my_point = game.level.enemy_pathfinding_graph.get_closest_point(Vector3(tile.x, tile.y, 0));
+	var player_point = game.level.enemy_pathfinding_graph.get_closest_point(Vector3(game.player.tile.x, game.player.tile.y, 0));
 	# Try to find a path between the enemy's location and the player
-	var path = game.enemy_pathfinding.get_point_path(my_point, player_point);
+	var path = game.level.enemy_pathfinding_graph.get_point_path(my_point, player_point);
 	if (path):
 		# Must be at least 2 long (enemy tile, *stuff in middle*, player tile)
 		assert(path.size() > 1);
@@ -66,13 +66,13 @@ func act(game):
 		# Try to move to the next tile
 		var move_tile = Vector2(path[1].x, path[1].y);
 		
-		if (move_tile == game.player_tile):
+		if (move_tile == game.player.tile):
 			# if next to the player, deal 1 damage to them
-			game.damage_player(1);
+			game.player.damage_player(game, 1);
 		else:
 			# If not next to the player, check if another enemy is blocking this enemy's movement
 			var is_blocked = false;
-			for enemy in game.enemies:
+			for enemy in game.level.enemies:
 				if (enemy.tile == move_tile):
 					is_blocked = true;
 					break;

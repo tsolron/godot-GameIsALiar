@@ -1,13 +1,16 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://Game.gd" type="Script" id=1]
-[ext_resource path="res://assets/wall.png" type="Texture" id=2]
-[ext_resource path="res://assets/Door.png" type="Texture" id=3]
-[ext_resource path="res://assets/Floor.png" type="Texture" id=4]
-[ext_resource path="res://assets/Ladder.png" type="Texture" id=5]
-[ext_resource path="res://assets/Stone.png" type="Texture" id=6]
-[ext_resource path="res://assets/Black.png" type="Texture" id=7]
-[ext_resource path="res://assets/Player.png" type="Texture" id=8]
+[ext_resource path="res://scripts/Level.gd" type="Script" id=2]
+[ext_resource path="res://assets/wall.png" type="Texture" id=3]
+[ext_resource path="res://assets/Door.png" type="Texture" id=4]
+[ext_resource path="res://assets/Floor.png" type="Texture" id=5]
+[ext_resource path="res://assets/Ladder.png" type="Texture" id=6]
+[ext_resource path="res://assets/Stone.png" type="Texture" id=7]
+[ext_resource path="res://assets/Black.png" type="Texture" id=8]
+[ext_resource path="res://assets/Player.png" type="Texture" id=9]
+[ext_resource path="res://scripts/Player.gd" type="Script" id=10]
+[ext_resource path="res://scripts/UI.gd" type="Script" id=11]
 
 [sub_resource type="ConvexPolygonShape2D" id=1]
 points = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )
@@ -20,7 +23,7 @@ points = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )
 
 [sub_resource type="TileSet" id=4]
 0/name = "wall.png 0"
-0/texture = ExtResource( 2 )
+0/texture = ExtResource( 3 )
 0/tex_offset = Vector2( 0, 0 )
 0/modulate = Color( 1, 1, 1, 1 )
 0/region = Rect2( 0, 0, 32, 32 )
@@ -36,7 +39,7 @@ points = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )
 } ]
 0/z_index = 0
 1/name = "Door.png 1"
-1/texture = ExtResource( 3 )
+1/texture = ExtResource( 4 )
 1/tex_offset = Vector2( 0, 0 )
 1/modulate = Color( 1, 1, 1, 1 )
 1/region = Rect2( 0, 0, 32, 32 )
@@ -52,7 +55,7 @@ points = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )
 } ]
 1/z_index = 0
 2/name = "Floor.png 2"
-2/texture = ExtResource( 4 )
+2/texture = ExtResource( 5 )
 2/tex_offset = Vector2( 0, 0 )
 2/modulate = Color( 1, 1, 1, 1 )
 2/region = Rect2( 0, 0, 32, 32 )
@@ -62,7 +65,7 @@ points = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )
 2/shapes = [  ]
 2/z_index = 0
 3/name = "Ladder.png 3"
-3/texture = ExtResource( 5 )
+3/texture = ExtResource( 6 )
 3/tex_offset = Vector2( 0, 0 )
 3/modulate = Color( 1, 1, 1, 1 )
 3/region = Rect2( 0, 0, 32, 32 )
@@ -72,7 +75,7 @@ points = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )
 3/shapes = [  ]
 3/z_index = 0
 4/name = "Stone.png 4"
-4/texture = ExtResource( 6 )
+4/texture = ExtResource( 7 )
 4/tex_offset = Vector2( 0, 0 )
 4/modulate = Color( 1, 1, 1, 1 )
 4/region = Rect2( 0, 0, 32, 32 )
@@ -90,7 +93,7 @@ points = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )
 
 [sub_resource type="TileSet" id=5]
 0/name = "Black.png 0"
-0/texture = ExtResource( 7 )
+0/texture = ExtResource( 8 )
 0/tex_offset = Vector2( 0, 0 )
 0/modulate = Color( 1, 1, 1, 1 )
 0/region = Rect2( 0, 0, 32, 32 )
@@ -103,20 +106,24 @@ points = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )
 [node name="Game" type="Node2D"]
 script = ExtResource( 1 )
 
-[node name="TileMap" type="TileMap" parent="."]
+[node name="Level" type="Node2D" parent="."]
+script = ExtResource( 2 )
+
+[node name="TileMap" type="TileMap" parent="Level"]
 tile_set = SubResource( 4 )
 cell_size = Vector2( 32, 32 )
 format = 1
 
-[node name="VisiblityMap" type="TileMap" parent="."]
+[node name="VisibilityMap" type="TileMap" parent="Level"]
 tile_set = SubResource( 5 )
 cell_size = Vector2( 32, 32 )
 format = 1
 
 [node name="Player" type="Sprite" parent="."]
 position = Vector2( 288, 160 )
-texture = ExtResource( 8 )
+texture = ExtResource( 9 )
 centered = false
+script = ExtResource( 10 )
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
 position = Vector2( 16, 16 )
@@ -126,14 +133,15 @@ drag_margin_top = 0.0
 drag_margin_right = 0.0
 drag_margin_bottom = 0.0
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="UI" type="CanvasLayer" parent="."]
+script = ExtResource( 11 )
 
-[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
+[node name="ColorRect" type="ColorRect" parent="UI"]
 margin_right = 640.0
 margin_bottom = 32.0
 color = Color( 0.101961, 0.101961, 0.101961, 0.713726 )
 
-[node name="Level" type="Label" parent="CanvasLayer"]
+[node name="Level" type="Label" parent="UI"]
 margin_left = 8.0
 margin_right = 84.0
 margin_bottom = 32.0
@@ -141,7 +149,7 @@ text = "Level:"
 valign = 1
 uppercase = true
 
-[node name="Score" type="Label" parent="CanvasLayer"]
+[node name="Score" type="Label" parent="UI"]
 margin_left = 97.3732
 margin_right = 173.373
 margin_bottom = 32.0
@@ -150,7 +158,7 @@ text = "Score:"
 valign = 1
 uppercase = true
 
-[node name="HP" type="Label" parent="CanvasLayer"]
+[node name="HP" type="Label" parent="UI"]
 margin_left = 191.057
 margin_right = 267.057
 margin_bottom = 32.0
@@ -159,14 +167,14 @@ text = "HP:"
 valign = 1
 uppercase = true
 
-[node name="Win" type="ColorRect" parent="CanvasLayer"]
+[node name="Win" type="ColorRect" parent="UI"]
 editor/display_folded = true
 visible = false
 margin_right = 640.0
 margin_bottom = 380.0
 color = Color( 0.141176, 0.141176, 0.141176, 0.717647 )
 
-[node name="Message" type="Label" parent="CanvasLayer/Win"]
+[node name="Message" type="Label" parent="UI/Win"]
 margin_left = 176.967
 margin_top = 62.892
 margin_right = 435.967
@@ -175,21 +183,21 @@ text = "You win!"
 align = 1
 valign = 1
 
-[node name="ResetBtn" type="Button" parent="CanvasLayer/Win"]
+[node name="ResetBtn" type="Button" parent="UI/Win"]
 margin_left = 236.0
 margin_top = 244.0
 margin_right = 374.0
 margin_bottom = 288.0
 text = "Play Again?"
 
-[node name="Lose" type="ColorRect" parent="CanvasLayer"]
+[node name="Lose" type="ColorRect" parent="UI"]
 editor/display_folded = true
 visible = false
 margin_right = 640.0
 margin_bottom = 380.0
 color = Color( 0.145098, 0.0627451, 0.0627451, 0.717647 )
 
-[node name="Message" type="Label" parent="CanvasLayer/Lose"]
+[node name="Message" type="Label" parent="UI/Lose"]
 margin_left = 176.967
 margin_top = 62.892
 margin_right = 435.967
@@ -198,11 +206,11 @@ text = "You did not win :("
 align = 1
 valign = 1
 
-[node name="ResetBtn" type="Button" parent="CanvasLayer/Lose"]
+[node name="ResetBtn" type="Button" parent="UI/Lose"]
 margin_left = 236.0
 margin_top = 244.0
 margin_right = 374.0
 margin_bottom = 288.0
 text = "Play Again?"
-[connection signal="pressed" from="CanvasLayer/Win/ResetBtn" to="." method="_on_ResetBtn_pressed"]
-[connection signal="pressed" from="CanvasLayer/Lose/ResetBtn" to="." method="_on_ResetBtn_pressed"]
+[connection signal="pressed" from="UI/Win/ResetBtn" to="." method="_on_ResetBtn_pressed"]
+[connection signal="pressed" from="UI/Lose/ResetBtn" to="." method="_on_ResetBtn_pressed"]
