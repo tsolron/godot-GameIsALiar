@@ -76,10 +76,23 @@ func try_move(dx, dy):
 		Tile.Floor:
 			# If you're trying to move onto Floor, success!
 			player_tile = Vector2(x, y);
+		
 		Tile.Door:
 			# If you're trying to open a door, you did it!
 			# Next turn you can move to where the door was
 			set_tile(x, y, Tile.Floor);
+		
+		Tile.Ladder:
+			# Gain 20 points for each level transition
+			level_num += 1;
+			score += 20;
+			# If there are more levels, go to the next one
+			if (level_num < LEVEL_SIZES.size()):
+				build_level();
+			else:
+				# Gain 1000 points for reaching the end of the game
+				score += 1000;
+				$CanvasLayer/Win.visible = true;
 	
 	update_visuals();
 
@@ -111,6 +124,15 @@ func build_level():
 	var player_y = start_room.position.y + 1 + randi() % int(start_room.size.y - 2);
 	player_tile = Vector2(player_x, player_y);
 	update_visuals();
+	
+	# Place end-of-level Ladder, last room used since it's all random
+	var end_room = rooms.back();
+	var ladder_x = end_room.position.x + 1 + randi() % int(end_room.size.x - 2);
+	var ladder_y = end_room.position.y + 1 + randi() % int(end_room.size.y - 2);
+	set_tile(ladder_x, ladder_y, Tile.Ladder);
+	
+	# Update UI
+	$CanvasLayer/Level.text = "LEVEL: " + str(level_num);
 
 func update_visuals():
 	# Currently only updates the player position, but more will be here later
@@ -354,3 +376,9 @@ func set_tile(x, y, type):
 	map[x][y] = type;	
 	tile_map.set_cell(x, y, type);
 	
+
+func _on_ResetBtn_pressed():
+	level_num = 0;
+	score = 0;
+	build_level();
+	$CanvasLayer/Win.visible = false;

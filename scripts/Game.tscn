@@ -88,7 +88,7 @@ margin_right = 640.0
 margin_bottom = 32.0
 color = Color( 0.101961, 0.101961, 0.101961, 0.713726 )
 
-[node name="Label" type="Label" parent="CanvasLayer"]
+[node name="Level" type="Label" parent="CanvasLayer"]
 margin_left = 8.0
 margin_right = 84.0
 margin_bottom = 32.0
@@ -96,7 +96,7 @@ text = "Level:"
 valign = 1
 uppercase = true
 
-[node name="Label2" type="Label" parent="CanvasLayer"]
+[node name="Score" type="Label" parent="CanvasLayer"]
 margin_left = 97.3732
 margin_right = 173.373
 margin_bottom = 32.0
@@ -105,7 +105,7 @@ text = "Score:"
 valign = 1
 uppercase = true
 
-[node name="Label3" type="Label" parent="CanvasLayer"]
+[node name="HP" type="Label" parent="CanvasLayer"]
 margin_left = 191.057
 margin_right = 267.057
 margin_bottom = 32.0
@@ -113,3 +113,26 @@ rect_pivot_offset = Vector2( -1.37323, 32 )
 text = "HP:"
 valign = 1
 uppercase = true
+
+[node name="Win" type="ColorRect" parent="CanvasLayer"]
+visible = false
+margin_right = 640.0
+margin_bottom = 380.0
+color = Color( 0.141176, 0.141176, 0.141176, 0.717647 )
+
+[node name="Message" type="Label" parent="CanvasLayer/Win"]
+margin_left = 176.967
+margin_top = 62.892
+margin_right = 435.967
+margin_bottom = 167.892
+text = "You win!"
+align = 1
+valign = 1
+
+[node name="ResetBtn" type="Button" parent="CanvasLayer/Win"]
+margin_left = 236.0
+margin_top = 244.0
+margin_right = 374.0
+margin_bottom = 288.0
+text = "Play Again?"
+[connection signal="pressed" from="CanvasLayer/Win/ResetBtn" to="." method="_on_ResetBtn_pressed"]
