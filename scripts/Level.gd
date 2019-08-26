@@ -212,8 +212,7 @@ func tick():
 		enemy.act(game);
 	
 	# Waits a frame to render
-	#call_deferred("update_visuals");
-	update_visuals();
+	call_deferred("update_visuals");
 
 
 func tile_to_pixel_center(x, y):
