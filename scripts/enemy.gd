@@ -7,12 +7,15 @@ extends Reference
 # Get a reference to the enemy scene 
 const EnemyScene = preload("res://scenes/Enemy.tscn");
 
+const COOLDOWN_TURNS = 2;
+
 var sprite_node;
 var tile;
 var max_hp;
 var hp;
 var is_dead = false;
 var is_at_player = false;
+var action_cooldown = 0;
 
 
 func _ready():
@@ -58,6 +61,7 @@ func act(game):
 		return;
 	
 	is_at_player = false;
+	action_cooldown -= 1;
 	
 	var my_point = game.level.enemy_pathfinding_graph.get_closest_point(Vector3(tile.x, tile.y, 0));
 	var player_point = game.level.enemy_pathfinding_graph.get_closest_point(Vector3(game.player.tile.x, game.player.tile.y, 0));
@@ -72,7 +76,9 @@ func act(game):
 		
 		if (move_tile == game.player.tile):
 			# if next to the player, deal 1 damage to them
-			game.player.damage_player(game, 1);
+			if (action_cooldown <= 0):
+				game.player.damage_player(game, 1);
+				action_cooldown = COOLDOWN_TURNS;
 			is_at_player = true;
 		else:
 			# If not next to the player, check if another enemy is blocking this enemy's movement
@@ -84,9 +90,11 @@ func act(game):
 			
 			# If not blocked, move to that tile
 			if (!is_blocked):
-				tile = move_tile;
-				if (path.size() == 3):
-					is_at_player = true;
+				if (action_cooldown <= 0):
+					tile = move_tile;
+					action_cooldown = COOLDOWN_TURNS;
+					if (path.size() == 3):
+						is_at_player = true;
 
 func is_next_to_player():
 	return is_at_player;
