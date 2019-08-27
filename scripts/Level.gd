@@ -21,7 +21,7 @@ const MAX_ROOM_DIMENSION = 8;
 # Floor: Inside a room
 # Ladder: Connects different levels
 # Stone: Default everywhere
-enum Tile {Wall, Door, Floor, Ladder, Stone}
+enum Tile {Wall, Door, Floor, Ladder, Stone};
 
 onready var tile_map = $TileMap;
 onready var visibility_map = $VisibilityMap;
@@ -107,7 +107,8 @@ func build_level():
 		
 		# If it is blocked, it's skipped. Could change this to re-pick locations until a valid spot is found
 		if (!blocked):
-			var enemy = Enemy.new(game, 0, x, y);
+			#var enemy = Enemy.new(game, 0, EnemyType.Basic, x, y);
+			var enemy = Enemy.new(game, 0, game.EnemyType.Blocker, x, y);
 			enemies.append(enemy);
 		
 	

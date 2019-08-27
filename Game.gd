@@ -2,6 +2,8 @@ extends Node2D
 
 #const Player = preload("scripts/Player.gd");
 
+enum EnemyType {Basic, Blocker};
+
 # Get nodes but after they exist
 onready var level = $Level;
 onready var player = $Player;
