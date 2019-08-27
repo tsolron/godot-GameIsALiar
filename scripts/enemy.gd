@@ -15,6 +15,7 @@ var max_hp;
 var hp;
 var is_dead = false;
 var is_at_player = false;
+var is_a_danger = false;
 var action_cooldown = 0;
 var type = 0;
 
@@ -32,6 +33,7 @@ func _init(game, enemy_level, t, x, y):
 	match(type):
 		game.EnemyType.Basic:
 			COOLDOWN_TURNS = 2;
+			is_a_danger = true;
 		game.EnemyType.Blocker:
 			COOLDOWN_TURNS = 1;
 		

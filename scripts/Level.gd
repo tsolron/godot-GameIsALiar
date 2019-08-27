@@ -107,8 +107,8 @@ func build_level():
 		
 		# If it is blocked, it's skipped. Could change this to re-pick locations until a valid spot is found
 		if (!blocked):
-			#var enemy = Enemy.new(game, 0, EnemyType.Basic, x, y);
-			var enemy = Enemy.new(game, 0, game.EnemyType.Blocker, x, y);
+			#var enemy = Enemy.new(game, 0, (randi() % game.EnemyTypes.size()), x, y);
+			var enemy = Enemy.new(game, 0, (randi() % 2), x, y);
 			enemies.append(enemy);
 		
 	
@@ -213,7 +213,7 @@ func tick():
 	player.is_danger = false;
 	for enemy in enemies:
 		enemy.act(game);
-		if (enemy.is_next_to_player()):
+		if (enemy.is_next_to_player() && enemy.is_a_danger):
 			player.is_danger = true;
 	player.update_danger();
 	
