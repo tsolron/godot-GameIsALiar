@@ -28,7 +28,9 @@ func _input(event):
 	# If one of our input actions, do that action.
 	# Note that key binds are in project settings, these are just the actions those bind to
 	var did_try_move = false;
-	var did_move;
+	var did_move = false;
+	if (event.is_action("Wait")):
+		did_try_move = true;
 	if (event.is_action("Left")):
 		did_move = level.try_move(-1, 0, "left");
 		did_try_move = true;

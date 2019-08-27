@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://Game.gd" type="Script" id=1]
 [ext_resource path="res://scripts/Level.gd" type="Script" id=2]
@@ -8,9 +8,10 @@
 [ext_resource path="res://assets/Ladder.png" type="Texture" id=6]
 [ext_resource path="res://assets/Stone.png" type="Texture" id=7]
 [ext_resource path="res://assets/Black.png" type="Texture" id=8]
-[ext_resource path="res://assets/Player_sheet.png" type="Texture" id=9]
-[ext_resource path="res://scripts/Player.gd" type="Script" id=10]
-[ext_resource path="res://scripts/UI.gd" type="Script" id=11]
+[ext_resource path="res://scripts/Player.gd" type="Script" id=9]
+[ext_resource path="res://assets/blue_Hero_Test_idle_anim_sheet.png" type="Texture" id=10]
+[ext_resource path="res://assets/red_Hero_Test_idle_anim_sheet.png" type="Texture" id=11]
+[ext_resource path="res://scripts/UI.gd" type="Script" id=12]
 
 [sub_resource type="ConvexPolygonShape2D" id=1]
 points = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )
@@ -104,11 +105,28 @@ points = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )
 0/z_index = 0
 
 [sub_resource type="Animation" id=6]
-resource_name = "Standing"
+resource_name = "idle_blue"
 length = 1.5
 loop = true
 tracks/0/type = "value"
-tracks/0/path = NodePath(".:frame")
+tracks/0/path = NodePath("idle_blue:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 ]
+}
+
+[sub_resource type="Animation" id=7]
+resource_name = "idle_red"
+length = 1.5
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("idle_red:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -138,11 +156,19 @@ format = 1
 
 [node name="Player" type="Sprite" parent="."]
 position = Vector2( 288, 160 )
-texture = ExtResource( 9 )
+script = ExtResource( 9 )
+
+[node name="idle_blue" type="Sprite" parent="Player"]
+texture = ExtResource( 10 )
 centered = false
 hframes = 15
-frame = 14
-script = ExtResource( 10 )
+frame = 11
+
+[node name="idle_red" type="Sprite" parent="Player"]
+visible = false
+texture = ExtResource( 11 )
+centered = false
+hframes = 15
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
 position = Vector2( 16, 16 )
@@ -153,11 +179,12 @@ drag_margin_right = 0.0
 drag_margin_bottom = 0.0
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Player"]
-autoplay = "Standing"
-anims/Standing = SubResource( 6 )
+autoplay = "idle_blue"
+anims/idle_blue = SubResource( 6 )
+anims/idle_red = SubResource( 7 )
 
 [node name="UI" type="CanvasLayer" parent="."]
-script = ExtResource( 11 )
+script = ExtResource( 12 )
 
 [node name="ColorRect" type="ColorRect" parent="UI"]
 margin_right = 640.0

@@ -125,6 +125,8 @@ func try_move(dx, dy, dir_name):
 	var x = player.tile.x + dx;
 	var y = player.tile.y + dy;
 	
+	var did_move = false;
+	
 	var tile_type = Tile.Stone;
 	# Make sure the desired move location is in-bounds for our map array
 	if (x >= 0 && x < size.x && y >= 0 && y < size.y):
@@ -151,8 +153,7 @@ func try_move(dx, dy, dir_name):
 			# If you're trying to move onto Floor and there are no enemies, success!
 			if (!is_blocked):
 				player.move_to(x, y);
-				#update_fog();
-				return true;
+				did_move = true;
 		
 		Tile.Door:
 			# If you're trying to open a door, you did it!
@@ -168,8 +169,8 @@ func try_move(dx, dy, dir_name):
 				build_level();
 			else:
 				game.win = true;
-				
-	return false;
+	
+	return did_move;
 
 
 func update_fog(player_center, space_state):
@@ -208,8 +209,12 @@ func update_visuals():
 
 
 func tick():
+	player.is_danger = false;
 	for enemy in enemies:
 		enemy.act(game);
+		if (enemy.is_next_to_player()):
+			player.is_danger = true;
+	player.update_danger();
 	
 	# Waits a frame to render
 	call_deferred("update_visuals");

@@ -12,6 +12,7 @@ var tile;
 var max_hp;
 var hp;
 var is_dead = false;
+var is_at_player = false;
 
 
 func _ready():
@@ -55,6 +56,9 @@ func act(game):
 	# If you can't see it, it can't see you
 	if (!sprite_node.visible):
 		return;
+	
+	is_at_player = false;
+	
 	var my_point = game.level.enemy_pathfinding_graph.get_closest_point(Vector3(tile.x, tile.y, 0));
 	var player_point = game.level.enemy_pathfinding_graph.get_closest_point(Vector3(game.player.tile.x, game.player.tile.y, 0));
 	# Try to find a path between the enemy's location and the player
@@ -69,6 +73,7 @@ func act(game):
 		if (move_tile == game.player.tile):
 			# if next to the player, deal 1 damage to them
 			game.player.damage_player(game, 1);
+			is_at_player = true;
 		else:
 			# If not next to the player, check if another enemy is blocking this enemy's movement
 			var is_blocked = false;
@@ -80,3 +85,8 @@ func act(game):
 			# If not blocked, move to that tile
 			if (!is_blocked):
 				tile = move_tile;
+				if (path.size() == 3):
+					is_at_player = true;
+
+func is_next_to_player():
+	return is_at_player;
