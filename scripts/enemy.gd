@@ -9,27 +9,30 @@ const EnemyScene = preload("res://scenes/Enemy.tscn");
 
 var COOLDOWN_TURNS = 2;
 
+var game;
 var manager;
 var cur_sprite;
 var tile;
 var max_hp;
 var hp;
 var is_dead = false;
-var is_at_player = false;
+var did_move = false;
+var path_dist_to_player = 0;
 var is_a_danger = false;
 var action_cooldown = 0;
 var type = 0;
 
 
 func _ready():
-	pass # Replace with function body.
+	pass;
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass
 
 
-func _init(game, mgr, enemy_level, t, x, y):
+func _init(g, mgr, enemy_level, t, x, y):
+	game = g;
 	manager = mgr;
 	type = t;
 	match(type):
@@ -72,7 +75,8 @@ func act(game):
 	if (!cur_sprite.visible):
 		return;
 	
-	is_at_player = false;
+	path_dist_to_player = 0;
+	did_move = false;
 	action_cooldown -= 1;
 	
 	var my_point = game.level.entity_pathfinding_graph.get_closest_point(Vector3(tile.x, tile.y, 0));
@@ -84,34 +88,36 @@ func act(game):
 		# Must be at least 2 long (enemy tile, *stuff in middle*, player tile)
 		assert(path.size() > 1);
 		
-		# Try to move to the next tile
-		var move_tile = Vector2(path[1].x, path[1].y);
-
-		# Check if next to the player
-		if (move_tile == game.player.tile):
-			is_at_player = true;
+		path_dist_to_player = path.size() - 1;
+		
+		var dx = path[1].x - tile.x;
+		var dy = path[1].y - tile.y;
+		
+		var target = game.level.entity_try_move(self, dx, dy);
+		#if (is_instance_valid(target) && path.size() == 3):
+		#	is_at_player = true;
+		if (is_instance_valid(target)):
+			# Only deals 1 damage each attack for now
 			if (type == manager.EnemyType.Basic):
 				# if next to the player, deal 1 damage to them
 				if (action_cooldown <= 0):
-					game.player.damage_player(game, 1);
 					action_cooldown = COOLDOWN_TURNS;
-		# Not next to the player
-		else:
-			# If not next to the player, check if another enemy is blocking this enemy's movement
-			var is_blocked = false;
-			for enemy in game.enemy_manager.enemies:
-				if (enemy.tile == move_tile):
-					is_blocked = true;
-					break;
-			
-			# If not blocked, move to that tile
-			if (!is_blocked):
-				if (action_cooldown <= 0):
-					tile = move_tile;
-					action_cooldown = COOLDOWN_TURNS;
-					if (path.size() == 3):
-						is_at_player = true;
+					attack(target, 1);
+		elif (did_move):
+			path_dist_to_player -= 1;
 
 
-func is_next_to_player():
-	return is_at_player;
+func move_to(x, y):
+	if (action_cooldown <= 0):
+		tile = Vector2(x, y);
+		did_move = true;
+		action_cooldown = COOLDOWN_TURNS;
+
+
+func attack(target, dmg):
+	if (target.get_name() == "Player"):
+		target.take_damage(game, dmg);
+
+
+func get_distance_to_player():
+	return path_dist_to_player;

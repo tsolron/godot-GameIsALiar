@@ -23,7 +23,7 @@ func tick():
 		
 		enemy.act(game);
 		
-		if (enemy.is_next_to_player() && enemy.is_a_danger):
+		if (enemy.is_a_danger && enemy.get_distance_to_player() == 1):
 			game.player.is_danger = true;
 	
 	game.player.update_danger();

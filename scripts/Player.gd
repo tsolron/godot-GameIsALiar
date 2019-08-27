@@ -58,7 +58,7 @@ func move_to(x, y):
 	tile = Vector2(x, y);
 
 
-func damage_player(game, dmg):
+func take_damage(game, dmg):
 	# Don't go below 0 hp
 	hp = max(0, hp - dmg);
 	if (hp == 0):
@@ -66,51 +66,15 @@ func damage_player(game, dmg):
 
 
 func try_move(dx, dy, dir_name):
-	var x = tile.x + dx;
-	var y = tile.y + dy;
-	
-	var did_move = false;
-	
-	var tile_type = game.level.Tile.Stone;
-	# Make sure the desired move location is in-bounds for our map array
-	if (x >= 0 && x < game.level.size.x && y >= 0 && y < game.level.size.y):
-		tile_type = game.level.map[x][y];
-	
 	turn_sprite(dir_name);
+	var target = game.level.entity_try_move(self, dx, dy);
 	
-	# Match is like a switch/case statement in other languages.
-	match tile_type:
-		game.level.Tile.Floor:
-			# If you try to move onto an Enemy, deal damage to it instead
-			# If killed, an enemy will disappear but you'll have to wait a turn to move there
-			var is_blocked = false;
-			var enemy = game.enemy_manager.get_enemy(x, y);
-			if (is_instance_valid(enemy)):
-				is_blocked = true;
-				# Only deals 1 damage each attack for now
-				attack(enemy, 1);
-			
-			# If you're trying to move onto Floor and there are no enemies, success!
-			if (!is_blocked):
-				move_to(x, y);
-				did_move = true;
-		
-		game.level.Tile.Door:
-			# If you're trying to open a door, you did it!
-			# Next turn you can move to where the door was
-			game.level.set_tile(x, y, game.level.Tile.Floor);
-		
-		game.level.Tile.Ladder:
-			# Gain 20 points for each level transition
-			game.level.level_num += 1;
-			game.score += 20;
-			# If there are more levels, go to the next one
-			if (game.level.level_num < game.level.LEVEL_SIZES.size()):
-				game.level.build_level();
-			else:
-				game.win = true;
-	
-	return did_move;
+	# If you try to move onto an Enemy, deal damage to it instead
+	# If killed, an enemy will disappear but you'll have to wait a turn to move there
+	if (is_instance_valid(target)):
+		# Only deals 1 damage each attack for now
+		attack(target, 1);
 
-func attack(enemy, dmg):
-	enemy.take_damage(game, dmg);
+
+func attack(target, dmg):
+	target.take_damage(game, dmg);

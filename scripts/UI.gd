@@ -22,9 +22,9 @@ func show_win():
 
 
 func update(game):
-	$Level.text = "LEVEL: " + str(game.level.level_num);
-	$HP.text = "HP: " + str(game.player.hp);
-	$Score.text = "SCORE: " + str(game.score);
+	$HUD/Level.text = "LEVEL: " + str(game.level.level_num);
+	$HUD/HP.text = "HP: " + str(game.player.hp);
+	$HUD/Score.text = "SCORE: " + str(game.score);
 
 
 func _on_OKBtn_pressed():

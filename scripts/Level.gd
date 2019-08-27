@@ -389,3 +389,60 @@ func add_tile_to_pathfinding_graph(tile):
 	# Create the connections between "tile" and existing Floors
 	for point in points_to_connect:
 		entity_pathfinding_graph.connect_points(point, new_point);
+
+
+func entity_try_move(entity, dx, dy):
+	var x = entity.tile.x + dx;
+	var y = entity.tile.y + dy;
+	var move_tile = Vector2(x, y);
+	
+	var did_move = false;
+	var blocker = null;
+	
+	var tile_type = Tile.Stone;
+	# Make sure the desired move location is in-bounds for our map array
+	if (x >= 0 && x < size.x && y >= 0 && y < size.y):
+		tile_type = map[x][y];
+	
+	# Match is like a switch/case statement in other languages.
+	match tile_type:
+		Tile.Floor, Tile.Ladder:
+			var is_blocked = false;
+			
+			# Enemy is blocking movement
+			var blocking_enemy = game.enemy_manager.get_enemy(x, y);
+			if (is_instance_valid(blocking_enemy)):
+				is_blocked = true;
+				blocker = blocking_enemy;
+			
+			# Player is blocking movement
+			# If entity is the player, this conditional will be false
+			if (move_tile == game.player.tile):
+				is_blocked = true;
+				blocker = game.player;
+			
+			# If you're trying to move onto Floor and there are no enemies, success!
+			if (!is_blocked):
+				if (tile_type == Tile.Ladder && entity.get_name() == "Player"):
+					changeLevel();
+				else:
+					entity.move_to(x, y);
+					did_move = true;
+		
+		Tile.Door:
+			# If you're trying to open a door, you did it!
+			# Next turn you can move to where the door was
+			set_tile(x, y, Tile.Floor);
+	
+	return blocker;
+
+
+func changeLevel():
+	# Gain 20 points for each level transition
+	level_num += 1;
+	game.score += 20;
+	# If there are more levels, go to the next one
+	if (level_num < LEVEL_SIZES.size()):
+		build_level();
+	else:
+		game.win = true;

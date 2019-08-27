@@ -184,14 +184,16 @@ anims/idle_blue = SubResource( 6 )
 anims/idle_red = SubResource( 7 )
 
 [node name="UI" type="CanvasLayer" parent="."]
+editor/display_folded = true
 script = ExtResource( 12 )
 
-[node name="ColorRect" type="ColorRect" parent="UI"]
+[node name="HUD" type="ColorRect" parent="UI"]
+editor/display_folded = true
 margin_right = 640.0
 margin_bottom = 32.0
 color = Color( 0.101961, 0.101961, 0.101961, 0.713726 )
 
-[node name="Level" type="Label" parent="UI"]
+[node name="Level" type="Label" parent="UI/HUD"]
 margin_left = 8.0
 margin_right = 84.0
 margin_bottom = 32.0
@@ -199,7 +201,7 @@ text = "Level:"
 valign = 1
 uppercase = true
 
-[node name="Score" type="Label" parent="UI"]
+[node name="Score" type="Label" parent="UI/HUD"]
 margin_left = 97.3732
 margin_right = 173.373
 margin_bottom = 32.0
@@ -208,7 +210,7 @@ text = "Score:"
 valign = 1
 uppercase = true
 
-[node name="HP" type="Label" parent="UI"]
+[node name="HP" type="Label" parent="UI/HUD"]
 margin_left = 191.057
 margin_right = 267.057
 margin_bottom = 32.0
@@ -264,6 +266,7 @@ margin_bottom = 288.0
 text = "Play Again?"
 
 [node name="Dialog" type="ColorRect" parent="UI"]
+editor/display_folded = true
 visible = false
 margin_right = 640.0
 margin_bottom = 380.0
