@@ -9,7 +9,8 @@ const EnemyScene = preload("res://scenes/Enemy.tscn");
 
 var COOLDOWN_TURNS = 2;
 
-var sprite_node;
+var manager;
+var cur_sprite;
 var tile;
 var max_hp;
 var hp;
@@ -28,28 +29,29 @@ func _ready():
 #	pass
 
 
-func _init(game, enemy_level, t, x, y):
+func _init(game, mgr, enemy_level, t, x, y):
+	manager = mgr;
 	type = t;
 	match(type):
-		game.EnemyType.Basic:
+		manager.EnemyType.Basic:
 			COOLDOWN_TURNS = 2;
 			is_a_danger = true;
-		game.EnemyType.Blocker:
+		manager.EnemyType.Blocker:
 			COOLDOWN_TURNS = 1;
 		
 	max_hp = 1 + 2*enemy_level + max(0,pow(2, (type*2))-1);
 	hp = max_hp;
 	tile = Vector2(x, y);
-	sprite_node = EnemyScene.instance();
+	cur_sprite = EnemyScene.instance();
 	# If using a sprite sheet, this may be different from 0 (ex. a function of enemy_level)
-	sprite_node.frame = type;
-	sprite_node.position = tile * game.level.TILE_SIZE;
-	game.add_child(sprite_node);
+	cur_sprite.frame = type;
+	cur_sprite.position = tile * game.level.TILE_SIZE;
+	game.add_child(cur_sprite);
 
 
 func remove():
 	# Helps with deallocation of the sprite
-	sprite_node.queue_free();
+	cur_sprite.queue_free();
 
 
 func take_damage(game, dmg):
@@ -58,7 +60,7 @@ func take_damage(game, dmg):
 		return;
 	
 	hp = max(0, hp - dmg); # doesn't go below 0
-	sprite_node.get_node("HP").rect_size.x = game.level.TILE_SIZE * hp / max_hp;
+	cur_sprite.get_node("HP").rect_size.x = game.level.TILE_SIZE * hp / max_hp;
 	
 	if (hp == 0):
 		is_dead = true;
@@ -67,17 +69,17 @@ func take_damage(game, dmg):
 
 func act(game):
 	# If you can't see it, it can't see you
-	if (!sprite_node.visible):
+	if (!cur_sprite.visible):
 		return;
 	
 	is_at_player = false;
 	action_cooldown -= 1;
 	
-	var my_point = game.level.enemy_pathfinding_graph.get_closest_point(Vector3(tile.x, tile.y, 0));
-	var player_point = game.level.enemy_pathfinding_graph.get_closest_point(Vector3(game.player.tile.x, game.player.tile.y, 0));
+	var my_point = game.level.entity_pathfinding_graph.get_closest_point(Vector3(tile.x, tile.y, 0));
+	var player_point = game.level.entity_pathfinding_graph.get_closest_point(Vector3(game.player.tile.x, game.player.tile.y, 0));
 	
 	# Try to find a path between the enemy's location and the player
-	var path = game.level.enemy_pathfinding_graph.get_point_path(my_point, player_point);
+	var path = game.level.entity_pathfinding_graph.get_point_path(my_point, player_point);
 	if (path):
 		# Must be at least 2 long (enemy tile, *stuff in middle*, player tile)
 		assert(path.size() > 1);
@@ -87,17 +89,17 @@ func act(game):
 
 		# Check if next to the player
 		if (move_tile == game.player.tile):
-			if (type == game.EnemyType.Basic):
+			is_at_player = true;
+			if (type == manager.EnemyType.Basic):
 				# if next to the player, deal 1 damage to them
 				if (action_cooldown <= 0):
 					game.player.damage_player(game, 1);
 					action_cooldown = COOLDOWN_TURNS;
-			is_at_player = true;
 		# Not next to the player
 		else:
 			# If not next to the player, check if another enemy is blocking this enemy's movement
 			var is_blocked = false;
-			for enemy in game.level.enemies:
+			for enemy in game.enemy_manager.enemies:
 				if (enemy.tile == move_tile):
 					is_blocked = true;
 					break;

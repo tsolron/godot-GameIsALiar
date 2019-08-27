@@ -26,17 +26,14 @@ enum Tile {Wall, Door, Floor, Ladder, Stone};
 onready var tile_map = $TileMap;
 onready var visibility_map = $VisibilityMap;
 onready var player = $"../Player";
+
 var game;
-
-var enemy_pathfinding_graph;
-
 var level_num = 0;
 var map = [];
 var rooms = [];
-var enemies = [];
 var size;
 var num_rooms;
-var num_enemies;
+var entity_pathfinding_graph = AStar.new();
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -54,18 +51,12 @@ func start_game():
 func build_level():
 	size = LEVEL_SIZES[level_num];
 	num_rooms = LEVEL_ROOM_COUNTS[level_num];
-	num_enemies = LEVEL_ENEMY_COUNTS[level_num];
 	
 	rooms.clear();
 	map.clear();
 	tile_map.clear();
 	visibility_map.clear();
-	
-	for enemy in enemies:
-		enemy.remove();
-	enemies.clear();
-	
-	enemy_pathfinding_graph = AStar.new();
+	entity_pathfinding_graph = AStar.new();
 	
 	for x in range(size.x):
 		map.append([]);
@@ -90,88 +81,22 @@ func build_level():
 	player.move_to(player_x, player_y);
 	player.is_ready = true;
 	
-	# Place enemies in the level
-	for i in range(num_enemies):
-		# Place in random rooms, excluding the player's starting room
-		var room = rooms[1 + randi() % (rooms.size() - 1)];
-		# Place in a random location within the room
-		var x = room.position.x + 1 + randi() % int(room.size.x - 2);
-		var y = room.position.y + 1 + randi() % int(room.size.y - 2);
-		
-		# And confirm no enemies are already on the chosen tile
-		var blocked = false;
-		for enemy in enemies:
-			if (enemy.tile.x == x && enemy.tile.y == y):
-				blocked = true;
-				break;
-		
-		# If it is blocked, it's skipped. Could change this to re-pick locations until a valid spot is found
-		if (!blocked):
-			#var enemy = Enemy.new(game, 0, (randi() % game.EnemyTypes.size()), x, y);
-			var enemy = Enemy.new(game, 0, (randi() % 2), x, y);
-			enemies.append(enemy);
-		
-	
 	# Place end-of-level Ladder, last room used since it's all random
 	var end_room = rooms.back();
 	var ladder_x = end_room.position.x + 1 + randi() % int(end_room.size.x - 2);
 	var ladder_y = end_room.position.y + 1 + randi() % int(end_room.size.y - 2);
 	set_tile(ladder_x, ladder_y, Tile.Ladder);
 	
-	# Waits one frame before calling update_visuals() so all objects exist at first run
-	call_deferred("update_visuals");
+	game.enemy_manager.add_to_level(LEVEL_ENEMY_COUNTS[level_num]);
 
 
-func try_move(dx, dy, dir_name):
-	var x = player.tile.x + dx;
-	var y = player.tile.y + dy;
-	
-	var did_move = false;
-	
-	var tile_type = Tile.Stone;
-	# Make sure the desired move location is in-bounds for our map array
-	if (x >= 0 && x < size.x && y >= 0 && y < size.y):
-		tile_type = map[x][y];
-	
-	player.turn_sprite(dir_name);
-	
-	# Match is like a switch/case statement in other languages.
-	match tile_type:
-		Tile.Floor:
-			# If you try to move onto an Enemy, deal damage to it instead
-			# If killed, an enemy will disappear but you'll have to wait a turn to move there
-			var is_blocked = false;
-			for enemy in enemies:
-				if (enemy.tile.x == x && enemy.tile.y == y):
-					# Only deals 1 damage each attack for now
-					enemy.take_damage(game, 1);
-					if (enemy.is_dead):
-						enemy.remove();
-						enemies.erase(enemy);
-					is_blocked = true;
-					break;
-				
-			# If you're trying to move onto Floor and there are no enemies, success!
-			if (!is_blocked):
-				player.move_to(x, y);
-				did_move = true;
-		
-		Tile.Door:
-			# If you're trying to open a door, you did it!
-			# Next turn you can move to where the door was
-			set_tile(x, y, Tile.Floor);
-		
-		Tile.Ladder:
-			# Gain 20 points for each level transition
-			level_num += 1;
-			game.score += 20;
-			# If there are more levels, go to the next one
-			if (level_num < LEVEL_SIZES.size()):
-				build_level();
-			else:
-				game.win = true;
-	
-	return did_move;
+func get_random_location_for_entity():
+	# Pick a random room, excluding the first (where the player is placed)
+	var room = rooms[1 + randi() % (rooms.size() - 1)];
+	# Place in a random location within the room
+	var x = room.position.x + 1 + randi() % int(room.size.x - 2);
+	var y = room.position.y + 1 + randi() % int(room.size.y - 2);
+	return Vector2(x, y);
 
 
 func update_fog(player_center, space_state):
@@ -180,73 +105,12 @@ func update_fog(player_center, space_state):
 			if (visibility_map.get_cell(x, y) == 0):
 				var x_dir = (1 if (x < player.tile.x) else (-1));
 				var y_dir = (1 if (y < player.tile.y) else (-1));
-				var test_point = tile_to_pixel_center(x, y) + Vector2(x_dir, y_dir)*(TILE_SIZE / 2);
+				var test_point = game.tile_to_pixel_center(x, y) + Vector2(x_dir, y_dir)*(TILE_SIZE / 2);
 				
 				var occlusion = space_state.intersect_ray(player_center, test_point);
 				# If no occlusion, or if the object causing occlusion is itself
 				if (!occlusion || (occlusion.position - test_point).length() < 1):
 					visibility_map.set_cell(x, y, -1);
-
-
-func update_visuals():
-	# Currently only updates the player position, but more will be here later
-	player.position = player.tile * TILE_SIZE;
-	
-	game.ui.update(game);
-	
-	var player_center = tile_to_pixel_center(player.tile.x, player.tile.y);
-	var space_state = get_world_2d().direct_space_state;
-	
-	update_fog(player_center, space_state);
-	
-	# Update enemy sprite locations
-	for enemy in enemies:
-		enemy.sprite_node.position = enemy.tile * TILE_SIZE;
-		if (!enemy.sprite_node.visible):
-			var enemy_center = tile_to_pixel_center(enemy.tile.x, enemy.tile.y);
-			var occlusion = space_state.intersect_ray(player_center, enemy_center);
-			if (!occlusion):
-				enemy.sprite_node.visible = true;
-
-
-func tick():
-	player.is_danger = false;
-	for enemy in enemies:
-		enemy.act(game);
-		if (enemy.is_next_to_player() && enemy.is_a_danger):
-			player.is_danger = true;
-	player.update_danger();
-	
-	# Waits a frame to render
-	call_deferred("update_visuals");
-
-
-func tile_to_pixel_center(x, y):
-	return Vector2((x + 0.5) * TILE_SIZE, (y + 0.5) * TILE_SIZE);
-
-
-# TODO: Comment this
-func clear_path(tile):
-	var new_point = enemy_pathfinding_graph.get_available_point_id();
-	enemy_pathfinding_graph.add_point(new_point, Vector3(tile.x, tile.y, 0));
-	
-	var points_to_connect = [];
-	
-	# Check Left
-	if (tile.x > 0 && map[tile.x-1][tile.y] == Tile.Floor):
-		points_to_connect.append(enemy_pathfinding_graph.get_closest_point(Vector3(tile.x - 1, tile.y, 0)));
-	# Check Up
-	if (tile.y > 0 && map[tile.x][tile.y-1] == Tile.Floor):
-		points_to_connect.append(enemy_pathfinding_graph.get_closest_point(Vector3(tile.x, tile.y - 1, 0)));
-	# Check Right
-	if (tile.x < size.x - 1 && map[tile.x+1][tile.y] == Tile.Floor):
-		points_to_connect.append(enemy_pathfinding_graph.get_closest_point(Vector3(tile.x + 1, tile.y, 0)));
-	# Check Down
-	if (tile.y < size.y - 1 && map[tile.x][tile.y+1] == Tile.Floor):
-		points_to_connect.append(enemy_pathfinding_graph.get_closest_point(Vector3(tile.x, tile.y + 1, 0)));
-	
-	for point in points_to_connect:
-		enemy_pathfinding_graph.connect_points(point, new_point);
 
 
 func connect_rooms():
@@ -486,5 +350,42 @@ func set_tile(x, y, type):
 	map[x][y] = type;	
 	tile_map.set_cell(x, y, type);
 	
-	if (type == Tile.Floor):
-		clear_path(Vector2(x, y));
+	if (type == Tile.Floor || type == Tile.Ladder):
+		add_tile_to_pathfinding_graph(Vector2(x, y));
+
+
+func is_passable_tile(x, y):
+	var is_passable = false;
+	match (game.level.map[x][y]):
+		Tile.Floor:
+			is_passable = true;
+		Tile.Ladder:
+			is_passable = true;
+	return is_passable;
+
+
+# Whenever a Floor tile is set, add the new connections between it and existing Floors
+func add_tile_to_pathfinding_graph(tile):
+	# Make a new point for "tile"
+	var new_point = entity_pathfinding_graph.get_available_point_id();
+	entity_pathfinding_graph.add_point(new_point, Vector3(tile.x, tile.y, 0));
+	
+	# List of points connecting  to "tile"
+	var points_to_connect = [];
+	
+	# Check Left
+	if (tile.x > 0 && is_passable_tile(tile.x - 1, tile.y)):
+		points_to_connect.append(entity_pathfinding_graph.get_closest_point(Vector3(tile.x - 1, tile.y, 0)));
+	# Check Up
+	if (tile.y > 0 && is_passable_tile(tile.x, tile.y - 1)):
+		points_to_connect.append(entity_pathfinding_graph.get_closest_point(Vector3(tile.x, tile.y - 1, 0)));
+	# Check Right
+	if (tile.x < game.level.size.x - 1 && is_passable_tile(tile.x + 1, tile.y)):
+		points_to_connect.append(entity_pathfinding_graph.get_closest_point(Vector3(tile.x + 1, tile.y, 0)));
+	# Check Down
+	if (tile.y < game.level.size.y - 1 && is_passable_tile(tile.x, tile.y + 1)):
+		points_to_connect.append(entity_pathfinding_graph.get_closest_point(Vector3(tile.x, tile.y + 1, 0)));
+	
+	# Create the connections between "tile" and existing Floors
+	for point in points_to_connect:
+		entity_pathfinding_graph.connect_points(point, new_point);
