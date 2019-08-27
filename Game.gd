@@ -27,6 +27,9 @@ func _input(event):
 	if (!event.is_pressed()):
 		return;
 	
+	if (ui.is_message_open):
+		return;
+	
 	# If one of our input actions, do that action.
 	# Note that key binds are in project settings, these are just the actions those bind to
 	var did_try_move = false;
@@ -81,3 +84,5 @@ func start_game():
 
 func _on_ResetBtn_pressed():
 	start_game();
+
+
