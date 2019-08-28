@@ -21,6 +21,11 @@ func show_win():
 	is_message_open = true;
 
 
+func show_dialog():
+	$Dialog.visible = true;
+	is_message_open = true;
+
+
 func update(game):
 	$HUD/Level.text = "LEVEL: " + str(game.level.level_num);
 	$HUD/HP.text = "HP: " + str(game.player.hp);

@@ -6,6 +6,7 @@ var game;
 var tile;
 var hp;
 var is_dead;
+var faction;
 var is_ready = false;
 var is_danger = false;
 var cur_sprite;
@@ -17,6 +18,7 @@ onready var animate = $AnimationPlayer;
 
 func _ready():
 	game = get_parent();
+	faction = game.Faction.Player;
 
 
 func start_game():
@@ -77,4 +79,5 @@ func try_move(dx, dy, dir_name):
 
 
 func attack(target, dmg):
-	target.take_damage(game, dmg);
+	if (target.faction != faction):
+		target.take_damage(game, dmg);

@@ -3,6 +3,8 @@ extends Node2D
 #const Player = preload("scripts/Player.gd");
 const EnemyManager = preload("scripts/EnemyManager.gd");
 
+enum Faction {Player, Enemy};
+
 # Get nodes but after they exist
 onready var level = $Level;
 onready var player = $Player;

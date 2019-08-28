@@ -12,7 +12,7 @@ const LEVEL_SIZES = [
 ];
 
 const LEVEL_ROOM_COUNTS = [5, 7, 9, 12, 15];
-const LEVEL_ENEMY_COUNTS = [5, 8, 12, 18, 26];
+const LEVEL_ENEMY_COUNTS = [10, 8, 12, 18, 26];
 const MIN_ROOM_DIMENSION = 5;
 const MAX_ROOM_DIMENSION = 8;
 
@@ -45,7 +45,61 @@ func _ready():
 
 func start_game():
 	level_num = 0;
-	build_level();
+	#build_level();
+	load_level(1);
+
+
+func load_level(n):
+	level_num = n;
+	var loaded_level = get_node("Level_" + str(level_num));
+	#size = LEVEL_SIZES[level_num];
+	size = Vector2(20, 12);
+	num_rooms = LEVEL_ROOM_COUNTS[level_num];
+	
+	rooms.clear();
+	map.clear();
+	tile_map.clear();
+	visibility_map.clear();
+	entity_pathfinding_graph = AStar.new();
+	
+	for x in range(size.x):
+		map.append([]);
+		for y in range(size.y):
+			map[x].append(Tile.Stone);
+			tile_map.set_cell(x, y, Tile.Stone);
+			visibility_map.set_cell(x, y, 0);
+	
+	for x in range(size.x):
+		map.append([]);
+		for y in range(size.y):
+			var cur_tile = loaded_level.get_cell(x, y);
+			set_tile(x, y, cur_tile);
+			
+	#var free_regions = [Rect2(Vector2(2, 2), size - Vector2(4, 4))];
+	
+# warning-ignore:unused_variable
+	#for i in range(num_rooms):
+	#	add_room(free_regions);
+	#	if (free_regions.empty()):
+	#		break;
+	
+	#connect_rooms();
+	
+	# Place the player in the level
+	#var start_room = rooms.front();
+	#var player_x = start_room.position.x + 1 + randi() % int(start_room.size.x - 2);
+	#var player_y = start_room.position.y + 1 + randi() % int(start_room.size.y - 2);
+	#player.move_to(player_x, player_y);
+	player.move_to(9, 5);
+	player.is_ready = true;
+	
+	# Place end-of-level Ladder, last room used since it's all random
+	#var end_room = rooms.back();
+	#var ladder_x = end_room.position.x + 1 + randi() % int(end_room.size.x - 2);
+	#var ladder_y = end_room.position.y + 1 + randi() % int(end_room.size.y - 2);
+	#set_tile(ladder_x, ladder_y, Tile.Ladder);
+	
+	game.enemy_manager.load_from_tileset($Level_1/Level_1_enemies);
 
 
 func build_level():
@@ -67,6 +121,7 @@ func build_level():
 	
 	var free_regions = [Rect2(Vector2(2, 2), size - Vector2(4, 4))];
 	
+# warning-ignore:unused_variable
 	for i in range(num_rooms):
 		add_room(free_regions);
 		if (free_regions.empty()):
@@ -105,6 +160,7 @@ func update_fog(player_center, space_state):
 			if (visibility_map.get_cell(x, y) == 0):
 				var x_dir = (1 if (x < player.tile.x) else (-1));
 				var y_dir = (1 if (y < player.tile.y) else (-1));
+# warning-ignore:integer_division
 				var test_point = game.tile_to_pixel_center(x, y) + Vector2(x_dir, y_dir)*(TILE_SIZE / 2);
 				
 				var occlusion = space_state.intersect_ray(player_center, test_point);
@@ -356,7 +412,7 @@ func set_tile(x, y, type):
 
 func is_passable_tile(x, y):
 	var is_passable = false;
-	match (game.level.map[x][y]):
+	match (map[x][y]):
 		Tile.Floor:
 			is_passable = true;
 		Tile.Ladder:
@@ -396,7 +452,6 @@ func entity_try_move(entity, dx, dy):
 	var y = entity.tile.y + dy;
 	var move_tile = Vector2(x, y);
 	
-	var did_move = false;
 	var blocker = null;
 	
 	var tile_type = Tile.Stone;
@@ -423,11 +478,10 @@ func entity_try_move(entity, dx, dy):
 			
 			# If you're trying to move onto Floor and there are no enemies, success!
 			if (!is_blocked):
-				if (tile_type == Tile.Ladder && entity.get_name() == "Player"):
+				if (tile_type == Tile.Ladder && entity.faction == 0):
 					changeLevel();
 				else:
 					entity.move_to(x, y);
-					did_move = true;
 		
 		Tile.Door:
 			# If you're trying to open a door, you did it!

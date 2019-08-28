@@ -16,6 +16,7 @@ var tile;
 var max_hp;
 var hp;
 var is_dead = false;
+var faction = -1;
 var did_move = false;
 var path_dist_to_player = 0;
 var is_a_danger = false;
@@ -31,9 +32,10 @@ func _ready():
 #	pass
 
 
-func _init(g, mgr, enemy_level, t, x, y):
+func _init(g, mgr, f, enemy_level, t, x, y):
 	game = g;
 	manager = mgr;
+	faction = f;
 	type = t;
 	match(type):
 		manager.EnemyType.Basic:
@@ -47,7 +49,8 @@ func _init(g, mgr, enemy_level, t, x, y):
 	tile = Vector2(x, y);
 	cur_sprite = EnemyScene.instance();
 	# If using a sprite sheet, this may be different from 0 (ex. a function of enemy_level)
-	cur_sprite.frame = type;
+	#cur_sprite.frame = type;
+	cur_sprite.frame = 0;
 	cur_sprite.position = tile * game.level.TILE_SIZE;
 	game.add_child(cur_sprite);
 
@@ -103,7 +106,7 @@ func act(game):
 				if (action_cooldown <= 0):
 					action_cooldown = COOLDOWN_TURNS;
 					attack(target, 1);
-		elif (did_move):
+		if (did_move):
 			path_dist_to_player -= 1;
 
 
@@ -115,7 +118,7 @@ func move_to(x, y):
 
 
 func attack(target, dmg):
-	if (target.get_name() == "Player"):
+	if (target.faction != faction):
 		target.take_damage(game, dmg);
 
 

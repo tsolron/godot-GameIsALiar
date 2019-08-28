@@ -29,6 +29,35 @@ func tick():
 	game.player.update_danger();
 
 
+func load_from_tileset(tileset):
+	num_enemies = 0;
+	
+	for enemy in enemies:
+		enemy.remove();
+	enemies.clear();
+	
+	# Place enemies in the level
+	for x in range(game.level.size.x):
+		for y in range(game.level.size.y):
+			var cur_tile = tileset.get_cell(x, y);
+			if (cur_tile >= 0):
+				var pos = Vector2(x, y);
+				
+				# And confirm no enemies are already on the chosen tile
+				var blocked = false;
+				for enemy in enemies:
+					if (enemy.tile.x == pos.x && enemy.tile.y == pos.y):
+						blocked = true;
+						break;
+				
+				# If it is blocked, it's skipped. Could change this to re-pick locations until a valid spot is found
+				if (!blocked):
+					var enemy = Enemy.new(game, self, game.Faction.Enemy, 0, (randi() % EnemyType.size()), pos.x, pos.y);
+					enemies.append(enemy);
+					enemy.cur_sprite.visible = true;
+	
+	tileset.visible = false;
+
 func add_to_level(n):
 	num_enemies = n;
 	
@@ -51,7 +80,7 @@ func add_to_level(n):
 		# If it is blocked, it's skipped. Could change this to re-pick locations until a valid spot is found
 		if (!blocked):
 			enemies_to_place -= 1;
-			var enemy = Enemy.new(game, self, 0, (randi() % EnemyType.size()), pos.x, pos.y);
+			var enemy = Enemy.new(game, self, game.Faction.Enemy, 0, (randi() % EnemyType.size()), pos.x, pos.y);
 			enemies.append(enemy);
 
 
