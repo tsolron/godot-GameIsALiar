@@ -10,6 +10,7 @@ var faction;
 var is_ready = false;
 var is_danger = false;
 var cur_sprite;
+var player_has_moved = false;
 
 onready var idle_blue = $idle_blue;
 onready var idle_red = $idle_red;
@@ -26,6 +27,7 @@ func start_game():
 	is_dead = false;
 	is_ready = false;
 	cur_sprite = idle_blue;
+	player_has_moved = false;
 
 
 func update_danger():
@@ -63,11 +65,15 @@ func move_to(x, y):
 func take_damage(game, dmg):
 	# Don't go below 0 hp
 	hp = max(0, hp - dmg);
+	$Camera/Animation.play("screen_shake");
 	if (hp == 0):
 		is_dead = true;
 
 
 func try_move(dx, dy, dir_name):
+	player_has_moved = true;
+	game.player.is_danger = false;
+	
 	turn_sprite(dir_name);
 	var target = game.level.entity_try_move(self, dx, dy);
 	

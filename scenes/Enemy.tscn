@@ -7,6 +7,7 @@ visible = false
 position = Vector2( 192, 224 )
 texture = ExtResource( 1 )
 centered = false
+hframes = 2
 
 [node name="HP_Background" type="ColorRect" parent="."]
 margin_right = 32.0

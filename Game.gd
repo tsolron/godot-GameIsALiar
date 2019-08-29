@@ -1,19 +1,20 @@
 extends Node2D
 
 #const Player = preload("scripts/Player.gd");
-const EnemyManager = preload("scripts/EnemyManager.gd");
+#const EnemyManager = preload("scripts/EnemyManager.gd");
 
 enum Faction {Player, Enemy};
 
 # Get nodes but after they exist
 onready var level = $Level;
+onready var enemy_manager = $EnemyManager;
 onready var player = $Player;
 onready var ui = $UI;
 onready var audio = $Audio;
 
 var score = 0;
 var win = false;
-var enemy_manager = EnemyManager.new();
+#var enemy_manager = EnemyManager.new();
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -60,7 +61,8 @@ func _input(event):
 
 
 func tick():
-	enemy_manager.tick();
+	if (player.player_has_moved):
+		enemy_manager.tick();
 	
 	if (check_for_win()):
 		# Gain 1000 points for reaching the end of the game

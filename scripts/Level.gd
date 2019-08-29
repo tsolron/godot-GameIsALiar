@@ -4,12 +4,13 @@ const Enemy = preload("Enemy.gd");
 
 const TILE_SIZE = 32;
 const LEVEL_SIZES = [
+	Vector2(20, 11),
 	Vector2(20, 12),
-	Vector2(20, 12),
+	Vector2(29, 25),
 ];
 
-const LEVEL_ROOM_COUNTS = [1, 1, 2, 3, 4];
-const LEVEL_ENEMY_COUNTS = [2, 2, 4, 6, 8];
+const LEVEL_ROOM_COUNTS = [1, 2, 4, 4, 4];
+const LEVEL_ENEMY_COUNTS = [2, 5, 8, 6, 8];
 const MIN_ROOM_DIMENSION = 8;
 const MAX_ROOM_DIMENSION = 20;
 
@@ -18,7 +19,7 @@ const MAX_ROOM_DIMENSION = 20;
 # Floor: Inside a room
 # Ladder: Connects different levels
 # Stone: Default everywhere
-enum Tile {Wall, Door, Floor, Ladder, Stone};
+enum Tile {Wall, Door, Floor, Ladder, Stone, Ladder_up};
 
 onready var tile_map = $TileMap;
 onready var visibility_map = $VisibilityMap;
@@ -41,7 +42,7 @@ func _ready():
 #	pass
 
 func start_game():
-	level_num = 0;
+	level_num = 1;
 	#build_level();
 	load_level(level_num);
 
@@ -51,7 +52,7 @@ func load_level(n):
 	var loaded_level = get_node("Level_" + str(level_num));
 	size = LEVEL_SIZES[level_num];
 	#size = Vector2(20, 12);
-	num_rooms = LEVEL_ROOM_COUNTS[level_num];
+	#num_rooms = LEVEL_ROOM_COUNTS[level_num];
 	
 	rooms.clear();
 	map.clear();
@@ -410,19 +411,17 @@ func cut_regions(free_regions, region_to_remove):
 
 
 func set_tile(x, y, type):
-	map[x][y] = type;	
+	map[x][y] = type;
 	tile_map.set_cell(x, y, type);
 	
-	if (type == Tile.Floor || type == Tile.Ladder):
+	if (type == Tile.Floor || type == Tile.Ladder || type == Tile.Ladder_up):
 		add_tile_to_pathfinding_graph(Vector2(x, y));
 
 
 func is_passable_tile(x, y):
 	var is_passable = false;
 	match (map[x][y]):
-		Tile.Floor:
-			is_passable = true;
-		Tile.Ladder:
+		Tile.Floor, Tile.Ladder, Tile.Ladder_up:
 			is_passable = true;
 	return is_passable;
 
@@ -468,11 +467,11 @@ func entity_try_move(entity, dx, dy):
 	
 	# Match is like a switch/case statement in other languages.
 	match tile_type:
-		Tile.Floor, Tile.Ladder:
+		Tile.Floor, Tile.Ladder, Tile.Ladder_up:
 			var is_blocked = false;
 			
 			# Enemy is blocking movement
-			var blocking_enemy = game.enemy_manager.get_enemy(x, y);
+			var blocking_enemy = game.enemy_manager.get_enemy_blocking_movement(x, y);
 			if (is_instance_valid(blocking_enemy)):
 				is_blocked = true;
 				blocker = blocking_enemy;
@@ -487,6 +486,7 @@ func entity_try_move(entity, dx, dy):
 			if (!is_blocked):
 				if (tile_type == Tile.Ladder && entity.faction == 0):
 					go_to_next_level();
+					return null;
 				else:
 					entity.move_to(x, y);
 		
@@ -501,6 +501,7 @@ func entity_try_move(entity, dx, dy):
 func go_to_next_level():
 	# Gain 20 points for each level transition
 	level_num += 1;
+	player.player_has_moved = false;
 	game.score += 20;
 	# If there are more levels, go to the next one
 	if (level_num < LEVEL_SIZES.size()):

@@ -2,7 +2,7 @@ extends Node
 
 const Enemy = preload("Enemy.gd");
 
-enum EnemyType {Basic, Blocker};
+enum EnemyType {Basic, Blocker, Innocent, Trap};
 
 var game;
 var enemies = [];
@@ -14,7 +14,7 @@ func _ready():
 
 
 func tick():
-	game.player.is_danger = false;
+	#game.player.is_danger = false;
 	for enemy in enemies:
 		if (enemy.is_dead):
 			enemy.remove();
@@ -23,7 +23,7 @@ func tick():
 		
 		enemy.act(game);
 		
-		if (enemy.is_a_danger && enemy.get_distance_to_player() == 1):
+		if (enemy.is_a_danger && enemy.get_distance_to_player() <= 1):
 			game.player.is_danger = true;
 	
 	game.player.update_danger();
@@ -43,6 +43,10 @@ func load_from_tileset(tileset):
 			if (cur_tile >= 0):
 				var pos = Vector2(x, y);
 				
+				if (cur_tile == 4):
+					game.player.move_to(pos.x, pos.y);
+					game.player.visible = true;
+				
 				# And confirm no enemies are already on the chosen tile
 				var blocked = false;
 				for enemy in enemies:
@@ -54,9 +58,9 @@ func load_from_tileset(tileset):
 				
 				# If it is blocked, it's skipped. Could change this to re-pick locations until a valid spot is found
 				if (!blocked):
-					var enemy = Enemy.new(game, self, game.Faction.Enemy, 0, (randi() % EnemyType.size()), pos.x, pos.y);
+					#var enemy = Enemy.new(game, self, game.Faction.Enemy, 0, (randi() % EnemyType.size()), pos.x, pos.y);
+					var enemy = Enemy.new(game, self, game.Faction.Enemy, 0, cur_tile, pos.x, pos.y);
 					enemies.append(enemy);
-					enemy.cur_sprite.visible = true;
 	
 	tileset.visible = false;
 
@@ -79,6 +83,9 @@ func add_to_level(n):
 				blocked = true;
 				break;
 		
+		if (game.player.tile.x == pos.x && game.player.tile.y == pos.y):
+			blocked = true;
+		
 		# If it is blocked, it's skipped. Could change this to re-pick locations until a valid spot is found
 		if (!blocked):
 			enemies_to_place -= 1;
@@ -86,10 +93,11 @@ func add_to_level(n):
 			enemies.append(enemy);
 
 
-func get_enemy(x, y):
+func get_enemy_blocking_movement(x, y):
 	for enemy in enemies:
 		if (enemy.tile.x == x && enemy.tile.y == y):
-			return enemy;
+			if (enemy.type != EnemyType.Trap):
+				return enemy;
 	return null;
 
 
@@ -97,7 +105,7 @@ func update_enemy_visuals(player_center, space_state):
 	# Update enemy sprite locations
 	for enemy in enemies:
 		enemy.cur_sprite.position = enemy.tile * game.level.TILE_SIZE;
-		if (!enemy.cur_sprite.visible):
+		if (!enemy.cur_sprite.visible && enemy.type != EnemyType.Trap):
 			var enemy_center = game.tile_to_pixel_center(enemy.tile.x, enemy.tile.y);
 			var occlusion = space_state.intersect_ray(player_center, enemy_center);
 			if (!occlusion):
