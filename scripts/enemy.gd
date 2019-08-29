@@ -52,6 +52,8 @@ func _init(g, mgr, f, enemy_level, t, x, y):
 	#cur_sprite.frame = type;
 	cur_sprite.frame = 0;
 	cur_sprite.position = tile * game.level.TILE_SIZE;
+	#TODO: Added next line temp
+	cur_sprite.visible = true;
 	game.add_child(cur_sprite);
 
 

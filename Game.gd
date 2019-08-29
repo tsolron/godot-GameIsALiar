@@ -9,6 +9,7 @@ enum Faction {Player, Enemy};
 onready var level = $Level;
 onready var player = $Player;
 onready var ui = $UI;
+onready var audio = $Audio;
 
 var score = 0;
 var win = false;
@@ -84,7 +85,7 @@ func update_visuals():
 	
 	enemy_manager.update_enemy_visuals(player_center, space_state);
 	
-	level.update_fog(player_center, space_state);
+	#level.update_fog(player_center, space_state);
 
 
 func check_for_win():
@@ -102,6 +103,7 @@ func start_game():
 	level.start_game();
 	player.start_game();
 	ui.start_game();
+	audio.start_game();
 	# Waits one frame before calling update_visuals() so all objects exist at first run
 	call_deferred("update_visuals");
 

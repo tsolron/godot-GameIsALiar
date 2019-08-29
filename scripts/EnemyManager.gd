@@ -49,6 +49,8 @@ func load_from_tileset(tileset):
 					if (enemy.tile.x == pos.x && enemy.tile.y == pos.y):
 						blocked = true;
 						break;
+				if (game.player.tile.x == pos.x && game.player.tile.y == pos.y):
+					blocked = true;
 				
 				# If it is blocked, it's skipped. Could change this to re-pick locations until a valid spot is found
 				if (!blocked):

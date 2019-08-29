@@ -26,6 +26,11 @@ func show_dialog():
 	is_message_open = true;
 
 
+func show_continue():
+	$Continue.visible = true;
+	is_message_open = true;
+
+
 func update(game):
 	$HUD/Level.text = "LEVEL: " + str(game.level.level_num);
 	$HUD/HP.text = "HP: " + str(game.player.hp);
@@ -34,4 +39,9 @@ func update(game):
 
 func _on_OKBtn_pressed():
 	$Dialog.visible = false;
+	is_message_open = false;
+
+
+func _on_ContinueBtn_pressed():
+	$Continue.visible = false;
 	is_message_open = false;

@@ -4,17 +4,14 @@ const Enemy = preload("Enemy.gd");
 
 const TILE_SIZE = 32;
 const LEVEL_SIZES = [
-	Vector2(30, 30),
-	Vector2(35, 35),
-	Vector2(40, 40),
-	Vector2(45, 45), 
-	Vector2(50, 50), 
+	Vector2(20, 12),
+	Vector2(20, 12),
 ];
 
-const LEVEL_ROOM_COUNTS = [5, 7, 9, 12, 15];
-const LEVEL_ENEMY_COUNTS = [10, 8, 12, 18, 26];
-const MIN_ROOM_DIMENSION = 5;
-const MAX_ROOM_DIMENSION = 8;
+const LEVEL_ROOM_COUNTS = [1, 1, 2, 3, 4];
+const LEVEL_ENEMY_COUNTS = [2, 2, 4, 6, 8];
+const MIN_ROOM_DIMENSION = 8;
+const MAX_ROOM_DIMENSION = 20;
 
 # Wall: Perimeter of a room
 # Door: Barrier between a room and hallway. Takes one turn to open
@@ -46,14 +43,14 @@ func _ready():
 func start_game():
 	level_num = 0;
 	#build_level();
-	load_level(1);
+	load_level(level_num);
 
 
 func load_level(n):
 	level_num = n;
 	var loaded_level = get_node("Level_" + str(level_num));
-	#size = LEVEL_SIZES[level_num];
-	size = Vector2(20, 12);
+	size = LEVEL_SIZES[level_num];
+	#size = Vector2(20, 12);
 	num_rooms = LEVEL_ROOM_COUNTS[level_num];
 	
 	rooms.clear();
@@ -99,12 +96,16 @@ func load_level(n):
 	#var ladder_y = end_room.position.y + 1 + randi() % int(end_room.size.y - 2);
 	#set_tile(ladder_x, ladder_y, Tile.Ladder);
 	
-	game.enemy_manager.load_from_tileset($Level_1/Level_1_enemies);
+	var enemy_tiles = loaded_level.get_children()[0];
+	game.enemy_manager.load_from_tileset(enemy_tiles);
 
 
 func build_level():
-	size = LEVEL_SIZES[level_num];
-	num_rooms = LEVEL_ROOM_COUNTS[level_num];
+	#size = LEVEL_SIZES[level_num];
+	size.x += 2;
+	size.y += 2;
+	if (level_num < LEVEL_ROOM_COUNTS.size()):
+		num_rooms = LEVEL_ROOM_COUNTS[level_num];
 	
 	rooms.clear();
 	map.clear();
@@ -142,12 +143,18 @@ func build_level():
 	var ladder_y = end_room.position.y + 1 + randi() % int(end_room.size.y - 2);
 	set_tile(ladder_x, ladder_y, Tile.Ladder);
 	
-	game.enemy_manager.add_to_level(LEVEL_ENEMY_COUNTS[level_num]);
+	if (level_num < LEVEL_ENEMY_COUNTS.size()):
+		game.enemy_manager.add_to_level(LEVEL_ENEMY_COUNTS[level_num]);
+	else:
+		game.enemy_manager.add_to_level(LEVEL_ENEMY_COUNTS[LEVEL_ENEMY_COUNTS.size() - 1] + level_num);
+	
+	game.call_deferred("update_visuals");
 
 
 func get_random_location_for_entity():
 	# Pick a random room, excluding the first (where the player is placed)
-	var room = rooms[1 + randi() % (rooms.size() - 1)];
+	#var room = rooms[1 + randi() % (rooms.size() - 1)];
+	var room = rooms[randi() % rooms.size()];
 	# Place in a random location within the room
 	var x = room.position.x + 1 + randi() % int(room.size.x - 2);
 	var y = room.position.y + 1 + randi() % int(room.size.y - 2);
@@ -479,7 +486,7 @@ func entity_try_move(entity, dx, dy):
 			# If you're trying to move onto Floor and there are no enemies, success!
 			if (!is_blocked):
 				if (tile_type == Tile.Ladder && entity.faction == 0):
-					changeLevel();
+					go_to_next_level();
 				else:
 					entity.move_to(x, y);
 		
@@ -491,12 +498,16 @@ func entity_try_move(entity, dx, dy):
 	return blocker;
 
 
-func changeLevel():
+func go_to_next_level():
 	# Gain 20 points for each level transition
 	level_num += 1;
 	game.score += 20;
 	# If there are more levels, go to the next one
 	if (level_num < LEVEL_SIZES.size()):
-		build_level();
+		load_level(level_num);
+		#build_level();
 	else:
-		game.win = true;
+		if (level_num == LEVEL_SIZES.size()):
+			game.ui.show_continue();
+		#game.win = true;
+		build_level();
