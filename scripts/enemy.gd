@@ -95,7 +95,13 @@ func take_damage(game, dmg):
 	
 	if (hp == 0):
 		is_dead = true;
-		game.score += 10 * max_hp;
+		match(type):
+			manager.EnemyType.Basic:
+				game.score += 15;
+			manager.EnemyType.Blocker:
+				game.score += 20;
+			manager.EnemyType.Innocent:
+				game.score += -100;
 
 
 func act(game):

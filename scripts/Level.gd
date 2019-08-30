@@ -502,7 +502,7 @@ func go_to_next_level():
 	# Gain 20 points for each level transition
 	level_num += 1;
 	player.player_has_moved = false;
-	game.score += 20;
+	game.score += 25;
 	# If there are more levels, go to the next one
 	if (level_num < LEVEL_SIZES.size()):
 		load_level(level_num);

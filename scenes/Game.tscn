@@ -322,7 +322,6 @@ anims/attack_right = SubResource( 6 )
 anims/attack_up = SubResource( 9 )
 
 [node name="UI" type="CanvasLayer" parent="."]
-editor/display_folded = true
 script = ExtResource( 12 )
 
 [node name="HUD" type="ColorRect" parent="UI"]
@@ -404,22 +403,19 @@ margin_bottom = 288.0
 text = "Play Again?"
 
 [node name="Dialog" type="ColorRect" parent="UI"]
-editor/display_folded = true
-visible = false
 margin_right = 640.0
 margin_bottom = 380.0
 color = Color( 0.141176, 0.141176, 0.141176, 0.717647 )
 
 [node name="Message" type="Label" parent="UI/Dialog"]
-margin_left = 74.9394
-margin_top = 59.4625
-margin_right = 530.939
-margin_bottom = 164.463
-text = "Attack enemies by moving onto their square
+margin_top = 60.0
+margin_right = 640.0
+margin_bottom = 170.0
+text = "Move with W, A, S, D or the arrow keys
 
 Your \"danger sense\" will activate when adjacent to dangerous enemies.
 
-Kill the dangerous enemies while ignoring the innocent."
+Kill the dangerous enemies by moving onto their square, but ignore the innocent."
 align = 1
 valign = 1
 

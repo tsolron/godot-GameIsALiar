@@ -1,6 +1,6 @@
 extends Sprite
 
-const PLAYER_START_HP = 9;
+const PLAYER_START_HP = 10;
 
 var game;
 var tile;
