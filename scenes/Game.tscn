@@ -279,9 +279,11 @@ tracks/0/keys = {
 
 [node name="Game" type="Node2D"]
 script = ExtResource( 1 )
+__meta__ = {
+"_edit_vertical_guides_": [ 320.0 ]
+}
 
 [node name="Level" type="Node2D" parent="."]
-editor/display_folded = true
 script = ExtResource( 2 )
 
 [node name="TileMap" type="TileMap" parent="Level"]
@@ -341,6 +343,7 @@ tile_data = PoolIntArray( 262151, 4, 0, 393239, 2, 0, 589840, 0, 0, 786448, 2, 0
 script = ExtResource( 8 )
 
 [node name="Player" type="Sprite" parent="."]
+editor/display_folded = true
 position = Vector2( 32, 160 )
 script = ExtResource( 9 )
 
@@ -383,6 +386,8 @@ autoplay = "idle_blue"
 anims/idle_blue = SubResource( 4 )
 anims/idle_red = SubResource( 5 )
 
+[node name="Viewport" type="Viewport" parent="Player/Visual"]
+
 [node name="MoveAnimation" type="AnimationPlayer" parent="Player"]
 anims/attack_down = SubResource( 8 )
 anims/attack_left = SubResource( 7 )
@@ -394,7 +399,6 @@ anims/move_right = SubResource( 11 )
 anims/move_up = SubResource( 14 )
 
 [node name="UI" type="CanvasLayer" parent="."]
-editor/display_folded = true
 script = ExtResource( 12 )
 
 [node name="HUD" type="ColorRect" parent="UI"]
@@ -476,6 +480,8 @@ margin_bottom = 288.0
 text = "Play Again?"
 
 [node name="Dialog" type="ColorRect" parent="UI"]
+editor/display_folded = true
+visible = false
 margin_right = 640.0
 margin_bottom = 380.0
 color = Color( 0.141176, 0.141176, 0.141176, 0.717647 )
@@ -498,6 +504,35 @@ margin_top = 244.0
 margin_right = 374.0
 margin_bottom = 288.0
 text = "OK"
+
+[node name="Confirm" type="ColorRect" parent="UI"]
+editor/display_folded = true
+visible = false
+margin_right = 640.0
+margin_bottom = 380.0
+color = Color( 0.141176, 0.141176, 0.141176, 0.717647 )
+
+[node name="Message" type="Label" parent="UI/Confirm"]
+margin_top = 60.0
+margin_right = 640.0
+margin_bottom = 170.0
+text = "Would you like to exit the game?"
+align = 1
+valign = 1
+
+[node name="YesBtn" type="Button" parent="UI/Confirm"]
+margin_left = 142.0
+margin_top = 244.0
+margin_right = 280.0
+margin_bottom = 288.0
+text = "YES"
+
+[node name="NoBtn" type="Button" parent="UI/Confirm"]
+margin_left = 360.0
+margin_top = 244.0
+margin_right = 498.0
+margin_bottom = 288.0
+text = "NO"
 
 [node name="Continue" type="ColorRect" parent="UI"]
 editor/display_folded = true
@@ -537,4 +572,6 @@ volume_db = -15.0
 [connection signal="pressed" from="UI/Win/ResetBtn" to="." method="_on_ResetBtn_pressed"]
 [connection signal="pressed" from="UI/Lose/ResetBtn" to="." method="_on_ResetBtn_pressed"]
 [connection signal="pressed" from="UI/Dialog/OKBtn" to="UI" method="_on_OKBtn_pressed"]
+[connection signal="pressed" from="UI/Confirm/YesBtn" to="UI" method="_on_YesBtn_pressed"]
+[connection signal="pressed" from="UI/Confirm/NoBtn" to="UI" method="_on_NoBtn_pressed"]
 [connection signal="pressed" from="UI/Continue/ContinueBtn" to="UI" method="_on_ContinueBtn_pressed"]

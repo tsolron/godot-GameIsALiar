@@ -31,6 +31,11 @@ func show_continue():
 	is_message_open = true;
 
 
+func show_exit():
+	$Confirm.visible = true;
+	is_message_open = true;
+
+
 func update(game):
 	$HUD/Level.text = "FLOOR: " + str(game.level.level_num);
 	$HUD/HP.text = "HP: " + str(game.player.hp);
@@ -44,4 +49,13 @@ func _on_OKBtn_pressed():
 
 func _on_ContinueBtn_pressed():
 	$Continue.visible = false;
+	is_message_open = false;
+
+
+func _on_YesBtn_pressed():
+	get_tree().quit();
+
+
+func _on_NoBtn_pressed():
+	$Confirm.visible = false;
 	is_message_open = false;

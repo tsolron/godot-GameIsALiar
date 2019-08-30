@@ -3,6 +3,8 @@ extends Node2D
 #const Player = preload("scripts/Player.gd");
 #const EnemyManager = preload("scripts/EnemyManager.gd");
 
+const LEVEL_START = 0;
+
 enum Faction {Player, Enemy};
 
 # Get nodes but after they exist
@@ -19,10 +21,7 @@ var pause_input = false;
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	OS.set_window_size(Vector2(1280, 720));
-	#player = Player.new();
-	enemy_manager.set_name("EnemyManager");
-	add_child(enemy_manager);
+	#OS.set_window_size(Vector2(1280, 720));
 	randomize();
 	# Build first level
 	start_game();
@@ -34,11 +33,15 @@ func _input(event):
 	if (!event.is_pressed()):
 		return;
 	
+	if (event.is_action("Exit")):
+		ui.show_exit();
+	
 	if (ui.is_message_open || pause_input):
 		return;
 	# If one of our input actions, do that action.
 	# Note that key binds are in project settings, these are just the actions those bind to
 	var did_try_move = false;
+# warning-ignore:unused_variable
 	var did_move = false;
 	if (event.is_action("Wait")):
 		did_try_move = true;
@@ -65,14 +68,13 @@ func tick():
 		enemy_manager.tick();
 	
 	if (check_for_win()):
-		# Gain 1000 points for reaching the end of the game
-		score += 1000;
+		#score += 1000;
 		ui.show_win();
 	if (check_for_lose()):
 		ui.show_lose();
 	
-	call_deferred("update_visuals");
-	#update_visuals();
+	#call_deferred("update_visuals");
+	update_visuals();
 
 
 func update_visuals():

@@ -160,6 +160,7 @@ func act(game):
 				path_dist_to_player -= 1;
 
 
+# warning-ignore:unused_argument
 func move_to(destination, dir):
 	if (action_cooldown <= 0):
 		tile = destination;
@@ -178,10 +179,12 @@ func get_distance_to_player():
 	return path_dist_to_player;
 
 
+# warning-ignore:unused_argument
 func _on_AnimationPlayer_animation_started(anim_name):
 	manager.game.pause_input = true;
 
 
+# warning-ignore:unused_argument
 func _on_AnimationPlayer_animation_finished(anim_name):
 	if (is_dying):
 		is_dying = false;

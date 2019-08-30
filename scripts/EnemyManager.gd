@@ -15,6 +15,7 @@ func _ready():
 	game = get_parent();
 
 
+# warning-ignore:unused_argument
 func _process(delta):
 	for enemy in enemies:
 		if (enemy.is_dead):

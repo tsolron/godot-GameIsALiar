@@ -12,6 +12,7 @@ var is_danger = false;
 var cur_sprite;
 var player_has_moved = false;
 
+# warning-ignore:unused_class_variable
 onready var visual = $Visual;
 onready var idle_blue = $Visual/idle_blue;
 onready var idle_red = $Visual/idle_red;
@@ -61,6 +62,7 @@ func turn_sprite(dir_name):
 		cur_sprite.flip_h = false;
 
 
+# warning-ignore:unused_argument
 func take_damage(game, dmg):
 	# Don't go below 0 hp
 	hp = max(0, hp - dmg);
@@ -98,11 +100,13 @@ func attack(target, dmg, dir_name):
 			move_anim.play("attack_" + dir_name);
 		target.take_damage(game, dmg);
 
+# warning-ignore:unused_argument
 func _on_MoveAnimation_animation_started(anim_name):
 	#visual.position = Vector2(0,0);
 	game.pause_input = true;
 
 
+# warning-ignore:unused_argument
 func _on_MoveAnimation_animation_finished(anim_name):
 	#visual.position = Vector2(0,0);
 	game.pause_input = false;

@@ -42,7 +42,7 @@ func _ready():
 #	pass
 
 func start_game():
-	level_num = 1;
+	level_num = game.LEVEL_START;
 	#build_level();
 	load_level(level_num);
 
@@ -135,7 +135,7 @@ func build_level():
 	var start_room = rooms.front();
 	var player_x = start_room.position.x + 1 + randi() % int(start_room.size.x - 2);
 	var player_y = start_room.position.y + 1 + randi() % int(start_room.size.y - 2);
-	player.move_to(Vector2(player_x, player_y));
+	player.move_to(Vector2(player_x, player_y), 'teleport');
 	player.is_ready = true;
 	
 	# Place end-of-level Ladder, last room used since it's all random
@@ -508,7 +508,7 @@ func go_to_next_level():
 		load_level(level_num);
 		#build_level();
 	else:
-		if (level_num == LEVEL_SIZES.size()):
-			game.ui.show_continue();
-		#game.win = true;
-		build_level();
+		#if (level_num == LEVEL_SIZES.size()):
+		#	game.ui.show_continue();
+		game.win = true;
+		#build_level();
