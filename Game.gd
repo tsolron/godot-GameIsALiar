@@ -78,7 +78,8 @@ func tick():
 func update_visuals():
 	if (!is_instance_valid(player)):
 		return;
-	player.position = player.tile * level.TILE_SIZE;
+	if (player.move_anim.current_animation == ""):
+		player.position = player.tile * level.TILE_SIZE;
 	
 	ui.update(self);
 	

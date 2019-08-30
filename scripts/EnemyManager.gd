@@ -1,7 +1,7 @@
 extends Node
 
-const EnemyTemplate = preload("Enemy.gd");
-#const EnemyTemplate = preload("res://scenes/EnemyTemplate.tscn");
+#const EnemyTemplate = preload("Enemy.gd");
+const EnemyTemplate = preload("res://scenes/EnemyTemplate.tscn");
 #onready var EnemyTemplate = $EnemyTemplate;
 
 enum EnemyType {Basic, Blocker, Innocent, Trap};
@@ -15,6 +15,14 @@ func _ready():
 	game = get_parent();
 
 
+func _process(delta):
+	for enemy in enemies:
+		if (enemy.is_dead):
+			enemy.remove();
+			enemies.erase(enemy);
+			break;
+
+
 func tick():
 	#game.player.is_danger = false;
 	for enemy in enemies:
@@ -23,10 +31,11 @@ func tick():
 			enemies.erase(enemy);
 			break;
 		
-		enemy.act(game);
-		
-		if (enemy.is_a_danger && enemy.get_distance_to_player() <= 1):
-			game.player.is_danger = true;
+		if (!enemy.is_dying):
+			enemy.act(game);
+			
+			if (enemy.is_a_danger && enemy.get_distance_to_player() <= 1):
+				game.player.is_danger = true;
 	
 	game.player.update_danger();
 
@@ -62,7 +71,9 @@ func load_from_tileset(tileset):
 				if (!blocked):
 					#var enemy = Enemy.new(game, self, game.Faction.Enemy, 0, (randi() % EnemyType.size()), pos.x, pos.y);
 					#var enemy = EnemyTemplate.instance();
-					var enemy = EnemyTemplate.new(game, self, game.Faction.Enemy, 0, cur_tile, pos.x, pos.y);
+					#var enemy = EnemyTemplate.new(game, self, game.Faction.Enemy, 0, cur_tile, pos.x, pos.y);
+					var enemy = EnemyTemplate.instance();
+					enemy.init(game, self, game.Faction.Enemy, 0, cur_tile, pos.x, pos.y);
 					enemies.append(enemy);
 	
 	tileset.visible = false;
@@ -92,7 +103,9 @@ func add_to_level(n):
 		# If it is blocked, it's skipped. Could change this to re-pick locations until a valid spot is found
 		if (!blocked):
 			enemies_to_place -= 1;
-			var enemy = EnemyTemplate.new(game, self, game.Faction.Enemy, 0, (randi() % EnemyType.size()), pos.x, pos.y);
+			#var enemy = EnemyTemplate.new(game, self, game.Faction.Enemy, 0, (randi() % EnemyType.size()), pos.x, pos.y);
+			var enemy = EnemyTemplate.instance();
+			enemy.init(game, self, game.Faction.Enemy, 0, (randi() % EnemyType.size()), pos.x, pos.y);
 			enemies.append(enemy);
 
 

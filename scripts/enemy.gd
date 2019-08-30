@@ -1,11 +1,11 @@
-extends Reference
+extends Sprite
 
 # Could create this on a script attached to the Enemy, but this works
 # extending Reference means it'll be deallocated from memory once it is no longer referenced
 #   though honestly don't 100% understand how it works
 
 # Get a reference to the enemy scene 
-const EnemyScene = preload("res://scenes/EnemyTemplate.tscn");
+#const EnemyScene = preload("res://scenes/EnemyTemplate.tscn");
 const INFINITY = 3.402823e+38
 
 var COOLDOWN_TURNS = 2;
@@ -16,6 +16,7 @@ var cur_sprite;
 var tile;
 var max_hp = 1;
 var hp;
+var is_dying = false;
 var is_dead = false;
 var faction = -1;
 var did_move = false;
@@ -23,6 +24,7 @@ var path_dist_to_player = 0;
 var is_a_danger = false;
 var action_cooldown = 0;
 var type = 0;
+var move_anim;
 
 
 func _ready():
@@ -33,16 +35,18 @@ func _ready():
 #	pass
 
 
-func _init(g, mgr, f, enemy_level, t, x, y):
+func init(g, mgr, f, enemy_level, t, x, y):
 	game = g;
 	manager = mgr;
 	faction = f;
 	type = t;
 	
 	#cur_sprite = self;
-	cur_sprite = EnemyScene.instance();
+	#cur_sprite = EnemyScene.instance();
+	cur_sprite = self;
 	cur_sprite.frame = 0;
 	cur_sprite.visible = true;
+	move_anim = cur_sprite.get_node("AnimationPlayer");
 	
 	match(type):
 		manager.EnemyType.Basic:
@@ -87,14 +91,15 @@ func update_health_bar(game):
 
 func take_damage(game, dmg):
 	# Just in case
-	if (is_dead):
+	if (is_dead || is_dying):
 		return;
 	
 	hp = max(0, hp - dmg); # doesn't go below 0
 	update_health_bar(game);
 	
 	if (hp == 0):
-		is_dead = true;
+		is_dying = true;
+		move_anim.play("die");
 		match(type):
 			manager.EnemyType.Basic:
 				game.score += 15;
@@ -146,7 +151,7 @@ func act(game):
 			#	is_at_player = true;
 			if (is_instance_valid(target)):
 				# Only deals 1 damage each attack for now
-				if (type == manager.EnemyType.Basic):
+				if (type == manager.EnemyType.Basic || type == manager.EnemyType.Blocker):
 					# if next to the player, deal 1 damage to them
 					if (action_cooldown <= 0):
 						action_cooldown = COOLDOWN_TURNS;
@@ -164,8 +169,21 @@ func move_to(destination, dir):
 
 func attack(target, dmg, dir_name):
 	if (target.faction != faction):
+		if (dir_name != "teleport"):
+			move_anim.play("attack_" + dir_name);
 		target.take_damage(game, dmg);
 
 
 func get_distance_to_player():
 	return path_dist_to_player;
+
+
+func _on_AnimationPlayer_animation_started(anim_name):
+	manager.game.pause_input = true;
+
+
+func _on_AnimationPlayer_animation_finished(anim_name):
+	if (is_dying):
+		is_dying = false;
+		is_dead = true;
+	manager.game.pause_input = false;

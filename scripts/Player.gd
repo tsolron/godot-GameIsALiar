@@ -12,10 +12,12 @@ var is_danger = false;
 var cur_sprite;
 var player_has_moved = false;
 
+onready var visual = $Visual;
 onready var idle_blue = $Visual/idle_blue;
 onready var idle_red = $Visual/idle_red;
 onready var animate = $Visual/AnimationPlayer;
 onready var move_anim = $MoveAnimation;
+onready var camera_animation = $Visual/Camera/Animation;
 
 
 func _ready():
@@ -59,18 +61,21 @@ func turn_sprite(dir_name):
 		cur_sprite.flip_h = false;
 
 
-func move_to(destination, dir_name):
-	#if (dir_name != "teleport"):
-	#	move_anim.play("attack_" + dir_name);
-	tile = destination;
-
-
 func take_damage(game, dmg):
 	# Don't go below 0 hp
 	hp = max(0, hp - dmg);
-	$Camera/Animation.play("screen_shake");
+	camera_animation.play("screen_shake");
 	if (hp == 0):
 		is_dead = true;
+
+
+func move_to(destination, dir_name):
+	
+	if (dir_name != "teleport"):
+		move_anim.play("move_" + dir_name);
+		#move_anim.play("move_right_test");
+		#yield(move_anim, "animation_finished");
+	tile = destination;
 
 
 func try_move(dx, dy, dir_name):
@@ -94,8 +99,12 @@ func attack(target, dmg, dir_name):
 		target.take_damage(game, dmg);
 
 func _on_MoveAnimation_animation_started(anim_name):
+	#visual.position = Vector2(0,0);
 	game.pause_input = true;
 
 
 func _on_MoveAnimation_animation_finished(anim_name):
+	#visual.position = Vector2(0,0);
 	game.pause_input = false;
+	#game.call_deferred("update_visuals");
+	game.update_visuals();
