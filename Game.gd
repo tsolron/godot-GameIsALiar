@@ -14,6 +14,7 @@ onready var audio = $Audio;
 
 var score = 0;
 var win = false;
+var pause_input = false;
 #var enemy_manager = EnemyManager.new();
 
 # Called when the node enters the scene tree for the first time.
@@ -33,9 +34,8 @@ func _input(event):
 	if (!event.is_pressed()):
 		return;
 	
-	if (ui.is_message_open):
+	if (ui.is_message_open || pause_input):
 		return;
-	
 	# If one of our input actions, do that action.
 	# Note that key binds are in project settings, these are just the actions those bind to
 	var did_try_move = false;

@@ -5,7 +5,7 @@ extends Reference
 #   though honestly don't 100% understand how it works
 
 # Get a reference to the enemy scene 
-const EnemyScene = preload("res://scenes/Enemy.tscn");
+const EnemyScene = preload("res://scenes/EnemyTemplate.tscn");
 const INFINITY = 3.402823e+38
 
 var COOLDOWN_TURNS = 2;
@@ -39,6 +39,7 @@ func _init(g, mgr, f, enemy_level, t, x, y):
 	faction = f;
 	type = t;
 	
+	#cur_sprite = self;
 	cur_sprite = EnemyScene.instance();
 	cur_sprite.frame = 0;
 	cur_sprite.visible = true;
@@ -123,12 +124,18 @@ func act(game):
 			if (path_dist_to_player == 1):
 				cur_sprite.visible = true;
 			if (path_dist_to_player == 0):
-				attack(game.player, 1);
+				attack(game.player, 1, "trap");
 		else:
 			var dx = path[1].x - tile.x;
 			var dy = path[1].y - tile.y;
 			
-			var target = game.level.entity_try_move(self, dx, dy);
+			var dir_name = "";
+			if (dx == -1): dir_name = "left";
+			if (dx ==  1): dir_name = "right";
+			if (dy == -1): dir_name = "up";
+			if (dy ==  1): dir_name = "down";
+			
+			var target = game.level.entity_try_move(self, dx, dy, dir_name);
 			#if (is_instance_valid(target) && path.size() == 3):
 			#	is_at_player = true;
 			if (is_instance_valid(target)):
@@ -137,19 +144,19 @@ func act(game):
 					# if next to the player, deal 1 damage to them
 					if (action_cooldown <= 0):
 						action_cooldown = COOLDOWN_TURNS;
-						attack(target, 1);
+						attack(target, 1, dir_name);
 			if (did_move):
 				path_dist_to_player -= 1;
 
 
-func move_to(x, y):
+func move_to(destination, dir):
 	if (action_cooldown <= 0):
-		tile = Vector2(x, y);
+		tile = destination;
 		did_move = true;
 		action_cooldown = COOLDOWN_TURNS;
 
 
-func attack(target, dmg):
+func attack(target, dmg, dir_name):
 	if (target.faction != faction):
 		target.take_damage(game, dmg);
 

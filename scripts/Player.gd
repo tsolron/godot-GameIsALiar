@@ -12,9 +12,10 @@ var is_danger = false;
 var cur_sprite;
 var player_has_moved = false;
 
-onready var idle_blue = $idle_blue;
-onready var idle_red = $idle_red;
-onready var animate = $AnimationPlayer;
+onready var idle_blue = $Visual/idle_blue;
+onready var idle_red = $Visual/idle_red;
+onready var animate = $Visual/AnimationPlayer;
+onready var move_anim = $MoveAnimation;
 
 
 func _ready():
@@ -58,8 +59,10 @@ func turn_sprite(dir_name):
 		cur_sprite.flip_h = false;
 
 
-func move_to(x, y):
-	tile = Vector2(x, y);
+func move_to(destination, dir_name):
+	#if (dir_name != "teleport"):
+	#	move_anim.play("attack_" + dir_name);
+	tile = destination;
 
 
 func take_damage(game, dmg):
@@ -75,15 +78,24 @@ func try_move(dx, dy, dir_name):
 	game.player.is_danger = false;
 	
 	turn_sprite(dir_name);
-	var target = game.level.entity_try_move(self, dx, dy);
+	var target = game.level.entity_try_move(self, dx, dy, dir_name);
 	
 	# If you try to move onto an Enemy, deal damage to it instead
 	# If killed, an enemy will disappear but you'll have to wait a turn to move there
 	if (is_instance_valid(target)):
 		# Only deals 1 damage each attack for now
-		attack(target, 1);
+		attack(target, 1, dir_name);
 
 
-func attack(target, dmg):
+func attack(target, dmg, dir_name):
 	if (target.faction != faction):
+		if (dir_name != "teleport"):
+			move_anim.play("attack_" + dir_name);
 		target.take_damage(game, dmg);
+
+func _on_MoveAnimation_animation_started(anim_name):
+	game.pause_input = true;
+
+
+func _on_MoveAnimation_animation_finished(anim_name):
+	game.pause_input = false;

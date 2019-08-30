@@ -32,7 +32,7 @@ func show_continue():
 
 
 func update(game):
-	$HUD/Level.text = "LEVEL: " + str(game.level.level_num);
+	$HUD/Level.text = "FLOOR: " + str(game.level.level_num);
 	$HUD/HP.text = "HP: " + str(game.player.hp);
 	$HUD/Score.text = "SCORE: " + str(game.score);
 

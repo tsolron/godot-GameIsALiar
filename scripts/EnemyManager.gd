@@ -1,6 +1,8 @@
 extends Node
 
-const Enemy = preload("Enemy.gd");
+const EnemyTemplate = preload("Enemy.gd");
+#const EnemyTemplate = preload("res://scenes/EnemyTemplate.tscn");
+#onready var EnemyTemplate = $EnemyTemplate;
 
 enum EnemyType {Basic, Blocker, Innocent, Trap};
 
@@ -44,7 +46,7 @@ func load_from_tileset(tileset):
 				var pos = Vector2(x, y);
 				
 				if (cur_tile == 4):
-					game.player.move_to(pos.x, pos.y);
+					game.player.move_to(pos, 'teleport');
 					game.player.visible = true;
 				
 				# And confirm no enemies are already on the chosen tile
@@ -59,7 +61,8 @@ func load_from_tileset(tileset):
 				# If it is blocked, it's skipped. Could change this to re-pick locations until a valid spot is found
 				if (!blocked):
 					#var enemy = Enemy.new(game, self, game.Faction.Enemy, 0, (randi() % EnemyType.size()), pos.x, pos.y);
-					var enemy = Enemy.new(game, self, game.Faction.Enemy, 0, cur_tile, pos.x, pos.y);
+					#var enemy = EnemyTemplate.instance();
+					var enemy = EnemyTemplate.new(game, self, game.Faction.Enemy, 0, cur_tile, pos.x, pos.y);
 					enemies.append(enemy);
 	
 	tileset.visible = false;
@@ -89,7 +92,7 @@ func add_to_level(n):
 		# If it is blocked, it's skipped. Could change this to re-pick locations until a valid spot is found
 		if (!blocked):
 			enemies_to_place -= 1;
-			var enemy = Enemy.new(game, self, game.Faction.Enemy, 0, (randi() % EnemyType.size()), pos.x, pos.y);
+			var enemy = EnemyTemplate.new(game, self, game.Faction.Enemy, 0, (randi() % EnemyType.size()), pos.x, pos.y);
 			enemies.append(enemy);
 
 

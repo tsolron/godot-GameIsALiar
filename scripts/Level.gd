@@ -88,7 +88,7 @@ func load_level(n):
 	#var player_x = start_room.position.x + 1 + randi() % int(start_room.size.x - 2);
 	#var player_y = start_room.position.y + 1 + randi() % int(start_room.size.y - 2);
 	#player.move_to(player_x, player_y);
-	player.move_to(9, 5);
+	player.move_to(Vector2(9, 5), 'teleport');
 	player.is_ready = true;
 	
 	# Place end-of-level Ladder, last room used since it's all random
@@ -135,7 +135,7 @@ func build_level():
 	var start_room = rooms.front();
 	var player_x = start_room.position.x + 1 + randi() % int(start_room.size.x - 2);
 	var player_y = start_room.position.y + 1 + randi() % int(start_room.size.y - 2);
-	player.move_to(player_x, player_y);
+	player.move_to(Vector2(player_x, player_y));
 	player.is_ready = true;
 	
 	# Place end-of-level Ladder, last room used since it's all random
@@ -453,7 +453,7 @@ func add_tile_to_pathfinding_graph(tile):
 		entity_pathfinding_graph.connect_points(point, new_point);
 
 
-func entity_try_move(entity, dx, dy):
+func entity_try_move(entity, dx, dy, dir_name):
 	var x = entity.tile.x + dx;
 	var y = entity.tile.y + dy;
 	var move_tile = Vector2(x, y);
@@ -488,7 +488,7 @@ func entity_try_move(entity, dx, dy):
 					go_to_next_level();
 					return null;
 				else:
-					entity.move_to(x, y);
+					entity.move_to(Vector2(x, y), dir_name);
 		
 		Tile.Door:
 			# If you're trying to open a door, you did it!
