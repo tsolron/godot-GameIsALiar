@@ -7,6 +7,7 @@ const LEVEL_SIZES = [
 	Vector2(20, 11),
 	Vector2(20, 12),
 	Vector2(29, 25),
+	Vector2(28, 29),
 ];
 
 const LEVEL_ROOM_COUNTS = [1, 2, 4, 4, 4];

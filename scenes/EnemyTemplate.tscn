@@ -3,7 +3,7 @@
 [ext_resource path="res://assets/Enemy.png" type="Texture" id=1]
 [ext_resource path="res://scripts/Enemy.gd" type="Script" id=2]
 
-[sub_resource type="Animation" id=2]
+[sub_resource type="Animation" id=1]
 resource_name = "attack_down"
 length = 0.25
 step = 0.05
@@ -20,7 +20,7 @@ tracks/0/keys = {
 "values": [ Vector2( 0, 0 ), Vector2( 0, 16 ), Vector2( 0, 0 ) ]
 }
 
-[sub_resource type="Animation" id=3]
+[sub_resource type="Animation" id=2]
 resource_name = "attack_left"
 length = 0.25
 step = 0.05
@@ -37,8 +37,7 @@ tracks/0/keys = {
 "values": [ Vector2( 0, 0 ), Vector2( -16, 0 ), Vector2( 0, 0 ) ]
 }
 
-[sub_resource type="Animation" id=1]
-resource_name = "attack_right"
+[sub_resource type="Animation" id=3]
 length = 0.25
 step = 0.05
 tracks/0/type = "value"
@@ -106,9 +105,9 @@ margin_bottom = 2.0
 color = Color( 0.14902, 1, 0, 1 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-anims/attack_down = SubResource( 2 )
-anims/attack_left = SubResource( 3 )
-anims/attack_right = SubResource( 1 )
+anims/attack_down = SubResource( 1 )
+anims/attack_left = SubResource( 2 )
+anims/attack_right = SubResource( 3 )
 anims/attack_up = SubResource( 4 )
 anims/die = SubResource( 5 )
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_AnimationPlayer_animation_finished"]

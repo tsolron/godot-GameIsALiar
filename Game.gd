@@ -3,7 +3,7 @@ extends Node2D
 #const Player = preload("scripts/Player.gd");
 #const EnemyManager = preload("scripts/EnemyManager.gd");
 
-const LEVEL_START = 0;
+const LEVEL_START = 3;
 
 enum Faction {Player, Enemy};
 

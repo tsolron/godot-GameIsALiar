@@ -6,7 +6,7 @@ extends Sprite
 
 # Get a reference to the enemy scene 
 #const EnemyScene = preload("res://scenes/EnemyTemplate.tscn");
-const INFINITY = 3.402823e+38
+const INFINITY = 3.402823e+38;
 
 var COOLDOWN_TURNS = 2;
 
