@@ -282,6 +282,7 @@ __meta__ = {
 }
 
 [node name="Level" type="Node2D" parent="."]
+editor/display_folded = true
 script = ExtResource( 2 )
 
 [node name="TileMap" type="TileMap" parent="Level"]
@@ -365,7 +366,7 @@ tile_data = PoolIntArray( 65537, 0, 0, 65538, 0, 0, 65539, 0, 0, 65540, 0, 0, 65
 tile_set = SubResource( 2 )
 cell_size = Vector2( 32, 32 )
 format = 1
-tile_data = PoolIntArray( 196619, 3, 0, 196622, 0, 0, 196623, 3, 0, 196625, 0, 0, 262148, 4, 0, 458765, 3, 0, 524309, 2, 0, 589828, 0, 0, 589829, 2, 0, 851989, 2, 0, 917514, 1, 0, 917516, 0, 0, 917528, 3, 0, 983059, 0, 0, 1048580, 3, 0, 1048596, 3, 0, 1114137, 3, 0, 1572877, 3, 0, 1638410, 3, 0, 1769481, 0, 0 )
+tile_data = PoolIntArray( 196619, 3, 0, 196622, 0, 0, 196623, 3, 0, 196625, 0, 0, 262148, 4, 0, 262149, 3, 0, 262150, 3, 0, 458765, 3, 0, 524309, 2, 0, 589828, 0, 0, 589829, 2, 0, 851989, 2, 0, 917514, 1, 0, 917516, 0, 0, 917528, 3, 0, 983059, 0, 0, 1048580, 3, 0, 1048596, 3, 0, 1114137, 3, 0, 1572877, 3, 0, 1638410, 3, 0, 1769481, 0, 0 )
 
 [node name="EnemyManager" type="Node2D" parent="."]
 script = ExtResource( 8 )
@@ -519,23 +520,25 @@ margin_bottom = 288.0
 text = "Play Again?"
 
 [node name="Dialog" type="ColorRect" parent="UI"]
-editor/display_folded = true
-visible = false
 margin_right = 640.0
-margin_bottom = 380.0
-color = Color( 0.141176, 0.141176, 0.141176, 0.717647 )
+margin_bottom = 360.0
+color = Color( 0.141176, 0.141176, 0.141176, 0.901961 )
 
 [node name="Message" type="Label" parent="UI/Dialog"]
-margin_top = 60.0
-margin_right = 640.0
-margin_bottom = 170.0
+margin_left = 16.0
+margin_top = 32.0
+margin_right = 624.0
+margin_bottom = 216.0
 text = "Move with W, A, S, D or the arrow keys
 
-Your \"danger sense\" will activate when adjacent to dangerous enemies.
+The Crown of Fire gives you the ability to sense evil. You've been tasked with eliminating all evil orcs from the dungeon, but evil is morally relative. 
 
-Kill the dangerous enemies by moving onto their square, but ignore the innocent."
+You have a plan: find out the orcs that are ACTUALLY evil and only defeat them. But your Crown activates if you're extremely close, and orcs move oddly but predictably. Figure out which ones are evil and how they move, to avoid their attacks.
+
+Kill the evil orcs, avoid the non-evil orcs, and reflect on the meaning of Evil itself. Also, watch out for mines. You'll notice."
 align = 1
 valign = 1
+autowrap = true
 
 [node name="OKBtn" type="Button" parent="UI/Dialog"]
 margin_left = 236.0
@@ -608,6 +611,7 @@ text = "Mute"
 
 [node name="MainMenu" type="ColorRect" parent="UI"]
 editor/display_folded = true
+visible = false
 margin_right = 640.0
 margin_bottom = 360.0
 color = Color( 0, 0, 0, 1 )

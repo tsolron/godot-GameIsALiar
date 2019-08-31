@@ -121,9 +121,9 @@ func get_enemy_blocking_movement(x, y):
 func update_enemy_visuals(player_center, space_state):
 	# Update enemy sprite locations
 	for enemy in enemies:
-		enemy.cur_sprite.position = enemy.tile * game.level.TILE_SIZE;
-		if (!enemy.cur_sprite.visible && enemy.type != EnemyType.Trap):
+		enemy.position = enemy.tile * game.level.TILE_SIZE;
+		if (!enemy.visible && enemy.type != EnemyType.Trap):
 			var enemy_center = game.tile_to_pixel_center(enemy.tile.x, enemy.tile.y);
 			var occlusion = space_state.intersect_ray(player_center, enemy_center, [game.player], game.level.tile_map.collision_mask);
 			if (!occlusion):
-				enemy.cur_sprite.visible = true;
+				enemy.visible = true;

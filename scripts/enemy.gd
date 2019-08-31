@@ -1,8 +1,12 @@
-extends Sprite
+extends Node2D
 
 # Could create this on a script attached to the Enemy, but this works
 # extending Reference means it'll be deallocated from memory once it is no longer referenced
 #   though honestly don't 100% understand how it works
+
+
+onready var mine_sprite = $MineSprite;
+
 
 # Get a reference to the enemy scene 
 #const EnemyScene = preload("res://scenes/EnemyTemplate.tscn");
@@ -26,6 +30,8 @@ var action_cooldown = 0;
 var type = 0;
 var is_blown_up = false;
 var move_anim;
+var mine_anim;
+
 
 
 func _ready():
@@ -42,11 +48,9 @@ func init(g, mgr, f, enemy_level, t, x, y):
 	faction = f;
 	type = t;
 	
-	#cur_sprite = self;
-	#cur_sprite = EnemyScene.instance();
-	cur_sprite = self;
+	cur_sprite = $Sprites;
 	cur_sprite.frame = 0;
-	cur_sprite.visible = false;
+	self.visible = false;
 	move_anim = cur_sprite.get_node("AnimationPlayer");
 	
 	match(type):
@@ -66,28 +70,39 @@ func init(g, mgr, f, enemy_level, t, x, y):
 			is_a_danger = true;
 			COOLDOWN_TURNS = 1;
 			#max_hp
-			cur_sprite.frame = 1;
+			#cur_sprite.frame = 1;
 			cur_sprite.visible = false;
-			cur_sprite.get_node("HP").visible = false;
-			cur_sprite.get_node("HP_Background").visible = false;
+			cur_sprite = $MineSprite;
+			cur_sprite.visible = true;
+			mine_anim = $MineSprite/AnimationPlayer;
+			mine_anim.play("mine_flicker");
+			self.visible = false;
+			self.get_node("HP").visible = false;
+			self.get_node("HP_Background").visible = false;
 	
 	action_cooldown = COOLDOWN_TURNS;
 	hp = max_hp;
 	tile = Vector2(x, y);
 	# If using a sprite sheet, this may be different from 0 (ex. a function of enemy_level)
-	cur_sprite.position = tile * game.level.TILE_SIZE;
+	self.position = tile * game.level.TILE_SIZE;
 	
-	manager.add_child(cur_sprite);
+	manager.add_child(self);
+
+
+func _process(delta):
+	if (type == manager.EnemyType.Trap):
+			if (mine_anim.current_animation == ""):
+				mine_anim.play("mine_flicker");
 
 
 func remove():
 	# Helps with deallocation of the sprite
-	cur_sprite.queue_free();
+	self.queue_free();
 
 
 func update_health_bar(game):
 	if (type == manager.EnemyType.Basic || type == manager.EnemyType.Blocker):
-		cur_sprite.get_node("HP").rect_size.x = game.level.TILE_SIZE * hp / max_hp;
+		self.get_node("HP").rect_size.x = game.level.TILE_SIZE * hp / max_hp;
 
 
 func take_damage(game, dmg):
@@ -112,7 +127,7 @@ func take_damage(game, dmg):
 
 func act(game):
 	# If you can't see it, it can't see you
-	if (!cur_sprite.visible && type != manager.EnemyType.Trap):
+	if (!self.visible && type != manager.EnemyType.Trap):
 		return;
 	
 	path_dist_to_player = INFINITY;
@@ -134,7 +149,7 @@ func act(game):
 		
 		if (type == manager.EnemyType.Trap):
 			if (path_dist_to_player == 1):
-				cur_sprite.visible = true;
+				self.visible = true;
 			if (path_dist_to_player == 0):
 				attack(game.player, 1, "mine");
 		else:
@@ -178,6 +193,9 @@ func attack(target, dmg, dir_name):
 		target.take_damage(game, dmg);
 		if (dir_name == "mine"):
 			is_blown_up = true;
+			cur_sprite.visible = false;
+			cur_sprite = $Sprites;
+			cur_sprite.visible = true;
 			cur_sprite.frame = 2;
 
 
