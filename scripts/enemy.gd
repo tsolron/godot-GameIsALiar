@@ -24,6 +24,7 @@ var path_dist_to_player = INFINITY;
 var is_a_danger = false;
 var action_cooldown = 0;
 var type = 0;
+var is_blown_up = false;
 var move_anim;
 
 
@@ -135,7 +136,7 @@ func act(game):
 			if (path_dist_to_player == 1):
 				cur_sprite.visible = true;
 			if (path_dist_to_player == 0):
-				attack(game.player, 1, "trap");
+				attack(game.player, 1, "mine");
 		else:
 			var dx = path[1].x - tile.x;
 			var dy = path[1].y - tile.y;
@@ -169,10 +170,15 @@ func move_to(destination, dir):
 
 
 func attack(target, dmg, dir_name):
+	if (is_blown_up):
+		return;
 	if (target.faction != faction):
-		if (dir_name != "teleport"):
+		if (dir_name != "teleport" && dir_name != "mine"):
 			move_anim.play("attack_" + dir_name);
 		target.take_damage(game, dmg);
+		if (dir_name == "mine"):
+			is_blown_up = true;
+			cur_sprite.frame = 2;
 
 
 func get_distance_to_player():
