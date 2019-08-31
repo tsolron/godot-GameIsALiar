@@ -354,6 +354,7 @@ format = 1
 tile_data = PoolIntArray( 262148, 4, 0, 458765, 3, 0, 524309, 2, 0, 589828, 0, 0, 589829, 2, 0, 851989, 2, 0, 917514, 1, 0, 917516, 0, 0, 917528, 3, 0, 983059, 0, 0, 1048580, 3, 0, 1048596, 3, 0, 1114137, 3, 0, 1572877, 3, 0, 1638410, 3, 0, 1769481, 0, 0 )
 
 [node name="Level_4" type="TileMap" parent="Level"]
+editor/display_folded = true
 visible = false
 tile_set = ExtResource( 3 )
 cell_size = Vector2( 32, 32 )
@@ -436,7 +437,6 @@ anims/move_right = SubResource( 12 )
 anims/move_up = SubResource( 13 )
 
 [node name="UI" type="CanvasLayer" parent="."]
-editor/display_folded = true
 script = ExtResource( 12 )
 
 [node name="HUD" type="ColorRect" parent="UI"]

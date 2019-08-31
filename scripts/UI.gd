@@ -68,6 +68,8 @@ func _on_NoBtn_pressed():
 
 func _on_PlayBtn_pressed():
 	game.start_game(0);
+	$Dialog.visible = true;
+	is_message_open = true;
 
 
 func _on_MuteBtn_pressed():
