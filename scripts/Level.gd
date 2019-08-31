@@ -44,8 +44,8 @@ func _ready():
 #func _process(delta):
 #	pass
 
-func start_game():
-	level_num = game.LEVEL_START;
+func start_game(n):
+	level_num = n;
 	#build_level();
 	load_level(level_num);
 

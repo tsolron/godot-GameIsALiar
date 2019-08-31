@@ -40,6 +40,7 @@ func show_exit():
 
 
 func show_main_menu():
+	$Paused.visible = false;
 	$MainMenu.visible = true;
 	is_message_open = true;
 
@@ -66,7 +67,7 @@ func _on_NoBtn_pressed():
 
 
 func _on_PlayBtn_pressed():
-	game.start_game();
+	game.start_game(0);
 
 
 func _on_MuteBtn_pressed():
@@ -82,3 +83,39 @@ func _on_MuteBtn_pressed():
 
 func _on_ExitBtn_pressed():
 	game.shutdown();
+
+
+func _on_Level_0_pressed():
+	game.start_game(0);
+
+
+func _on_Level_1_pressed():
+	game.start_game(1);
+
+
+func _on_Level_2_pressed():
+	game.start_game(2);
+
+
+func _on_Level_3_pressed():
+	game.start_game(3);
+
+
+func _on_Level_4_pressed():
+	game.start_game(4);
+
+
+func _on_Level_5_pressed():
+	pass # Replace with function body.
+
+
+func _on_Level_6_pressed():
+	pass # Replace with function body.
+
+
+func _on_Level_7_pressed():
+	pass # Replace with function body.
+
+
+func _on_Level_8_pressed():
+	pass # Replace with function body.

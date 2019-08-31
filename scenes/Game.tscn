@@ -437,6 +437,7 @@ anims/move_right = SubResource( 12 )
 anims/move_up = SubResource( 13 )
 
 [node name="UI" type="CanvasLayer" parent="."]
+editor/display_folded = true
 script = ExtResource( 12 )
 
 [node name="HUD" type="ColorRect" parent="UI"]
@@ -583,20 +584,31 @@ margin_bottom = 288.0
 text = "YES (exit)"
 
 [node name="MainMenuBtn" type="Button" parent="UI/Paused"]
+editor/display_folded = true
 margin_left = 486.0
 margin_top = 16.0
 margin_right = 624.0
 margin_bottom = 60.0
 text = "MAIN MENU"
 
+[node name="MainMenuNote" type="Label" parent="UI/Paused/MainMenuBtn"]
+margin_left = 36.6786
+margin_top = 43.4625
+margin_right = 136.679
+margin_bottom = 57.4625
+text = "(reset progress)"
+align = 1
+valign = 1
+
 [node name="MuteBtn" type="Button" parent="UI/Paused"]
 margin_left = 560.0
-margin_top = 80.0
+margin_top = 96.0
 margin_right = 624.0
-margin_bottom = 128.0
+margin_bottom = 144.0
 text = "Mute"
 
 [node name="MainMenu" type="ColorRect" parent="UI"]
+editor/display_folded = true
 margin_right = 640.0
 margin_bottom = 360.0
 color = Color( 0, 0, 0, 1 )
@@ -631,12 +643,69 @@ margin_right = 384.0
 margin_bottom = 144.0
 text = "Play"
 
-[node name="Level_0" type="Button" parent="UI/MainMenu"]
-margin_left = 93.5498
-margin_top = 167.05
-margin_right = 221.55
-margin_bottom = 199.05
+[node name="LevelBtns" type="Control" parent="UI/MainMenu"]
+editor/display_folded = true
+margin_left = 112.0
+margin_top = 206.0
+margin_right = 528.0
+margin_bottom = 334.0
+
+[node name="Level_0" type="Button" parent="UI/MainMenu/LevelBtns"]
+margin_right = 128.0
+margin_bottom = 32.0
 text = "Level 0"
+
+[node name="Level_1" type="Button" parent="UI/MainMenu/LevelBtns"]
+margin_left = 144.0
+margin_right = 272.0
+margin_bottom = 32.0
+text = "Level 1"
+
+[node name="Level_2" type="Button" parent="UI/MainMenu/LevelBtns"]
+margin_left = 288.0
+margin_right = 416.0
+margin_bottom = 32.0
+text = "Level 2"
+
+[node name="Level_3" type="Button" parent="UI/MainMenu/LevelBtns"]
+margin_top = 48.0
+margin_right = 128.0
+margin_bottom = 80.0
+text = "Level 3"
+
+[node name="Level_4" type="Button" parent="UI/MainMenu/LevelBtns"]
+margin_left = 144.0
+margin_top = 48.0
+margin_right = 272.0
+margin_bottom = 80.0
+text = "Level 4"
+
+[node name="Level_5" type="Button" parent="UI/MainMenu/LevelBtns"]
+margin_left = 288.0
+margin_top = 48.0
+margin_right = 416.0
+margin_bottom = 80.0
+text = "Level 5"
+
+[node name="Level_6" type="Button" parent="UI/MainMenu/LevelBtns"]
+margin_top = 96.0
+margin_right = 128.0
+margin_bottom = 128.0
+text = "Level 6"
+
+[node name="Level_7" type="Button" parent="UI/MainMenu/LevelBtns"]
+margin_left = 144.0
+margin_top = 96.0
+margin_right = 272.0
+margin_bottom = 128.0
+text = "Level 7"
+
+[node name="Level_8" type="Button" parent="UI/MainMenu/LevelBtns"]
+margin_left = 288.0
+margin_top = 96.0
+margin_right = 416.0
+margin_bottom = 128.0
+text = "Level 8"
 
 [node name="Continue" type="ColorRect" parent="UI"]
 editor/display_folded = true
@@ -683,4 +752,13 @@ volume_db = -15.0
 [connection signal="pressed" from="UI/MainMenu/ExitBtn" to="UI" method="_on_ExitBtn_pressed"]
 [connection signal="pressed" from="UI/MainMenu/MuteBtn" to="UI" method="_on_MuteBtn_pressed"]
 [connection signal="pressed" from="UI/MainMenu/PlayBtn" to="UI" method="_on_PlayBtn_pressed"]
+[connection signal="pressed" from="UI/MainMenu/LevelBtns/Level_0" to="UI" method="_on_Level_0_pressed"]
+[connection signal="pressed" from="UI/MainMenu/LevelBtns/Level_1" to="UI" method="_on_Level_1_pressed"]
+[connection signal="pressed" from="UI/MainMenu/LevelBtns/Level_2" to="UI" method="_on_Level_2_pressed"]
+[connection signal="pressed" from="UI/MainMenu/LevelBtns/Level_3" to="UI" method="_on_Level_3_pressed"]
+[connection signal="pressed" from="UI/MainMenu/LevelBtns/Level_4" to="UI" method="_on_Level_4_pressed"]
+[connection signal="pressed" from="UI/MainMenu/LevelBtns/Level_5" to="UI" method="_on_Level_5_pressed"]
+[connection signal="pressed" from="UI/MainMenu/LevelBtns/Level_6" to="UI" method="_on_Level_6_pressed"]
+[connection signal="pressed" from="UI/MainMenu/LevelBtns/Level_7" to="UI" method="_on_Level_7_pressed"]
+[connection signal="pressed" from="UI/MainMenu/LevelBtns/Level_8" to="UI" method="_on_Level_8_pressed"]
 [connection signal="pressed" from="UI/Continue/ContinueBtn" to="UI" method="_on_ContinueBtn_pressed"]

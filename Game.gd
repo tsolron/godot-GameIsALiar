@@ -114,9 +114,9 @@ func check_for_lose():
 	
 	return false;
 
-func start_game():
+func start_game(n):
 	score = 0;
-	level.start_game();
+	level.start_game(n);
 	player.start_game();
 	ui.start_game();
 	audio.start_game();
@@ -139,7 +139,7 @@ func check_if_fog_ready():
 
 
 func _on_ResetBtn_pressed():
-	start_game();
+	start_game(0);
 
 
 func shutdown():
