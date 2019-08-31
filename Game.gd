@@ -3,7 +3,8 @@ extends Node2D
 #const Player = preload("scripts/Player.gd");
 #const EnemyManager = preload("scripts/EnemyManager.gd");
 
-const LEVEL_START = 3;
+# 0 is the first level
+const LEVEL_START = 0;
 
 enum Faction {Player, Enemy};
 
@@ -18,6 +19,7 @@ var score = 0;
 var win = false;
 var pause_input = false;
 #var enemy_manager = EnemyManager.new();
+var ready_to_calc_fog = false;
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -25,6 +27,7 @@ func _ready():
 	randomize();
 	# Build first level
 	start_game();
+	#update_visuals();
 
 
 # Auto called whenever there's an input event
@@ -63,6 +66,11 @@ func _input(event):
 		tick();
 
 
+# warning-ignore:unused_argument
+func _process(delta):
+	update_visuals();
+
+
 func tick():
 	if (player.player_has_moved):
 		enemy_manager.tick();
@@ -74,7 +82,7 @@ func tick():
 		ui.show_lose();
 	
 	#call_deferred("update_visuals");
-	update_visuals();
+	#update_visuals();
 
 
 func update_visuals():
@@ -82,6 +90,7 @@ func update_visuals():
 		return;
 	if (player.move_anim.current_animation == ""):
 		player.position = player.tile * level.TILE_SIZE;
+		player.ready_to_calc_fog = true;
 	
 	ui.update(self);
 	
@@ -90,8 +99,8 @@ func update_visuals():
 	
 	enemy_manager.update_enemy_visuals(player_center, space_state);
 	
-	#level.update_fog(player_center, space_state);
-
+	if (check_if_fog_ready()):
+		level.update_fog(player_center, space_state);
 
 func check_for_win():
 	return win;
@@ -110,6 +119,7 @@ func start_game():
 	ui.start_game();
 	audio.start_game();
 	# Waits one frame before calling update_visuals() so all objects exist at first run
+	#update_visuals();
 	call_deferred("update_visuals");
 
 
@@ -117,7 +127,15 @@ func tile_to_pixel_center(x, y):
 	return Vector2((x + 0.5) * level.TILE_SIZE, (y + 0.5) * level.TILE_SIZE);
 
 
+func check_if_fog_ready():
+	ready_to_calc_fog = true;
+	if (!player.ready_to_calc_fog):
+		ready_to_calc_fog = false;
+	if (!level.ready_to_calc_fog):
+		ready_to_calc_fog = false;
+	return ready_to_calc_fog;
+
+
 func _on_ResetBtn_pressed():
 	start_game();
-
 

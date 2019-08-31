@@ -11,6 +11,8 @@ var is_ready = false;
 var is_danger = false;
 var cur_sprite;
 var player_has_moved = false;
+var vision_range = 4;
+var ready_to_calc_fog = false;
 
 # warning-ignore:unused_class_variable
 onready var visual = $Visual;
@@ -19,6 +21,7 @@ onready var idle_red = $Visual/idle_red;
 onready var animate = $Visual/AnimationPlayer;
 onready var move_anim = $MoveAnimation;
 onready var camera_animation = $Visual/Camera/Animation;
+onready var hp_bar = $Visual/HPMax/HP;
 
 
 func _ready():
@@ -32,6 +35,7 @@ func start_game():
 	is_ready = false;
 	cur_sprite = idle_blue;
 	player_has_moved = false;
+	self.visible = true;
 
 
 func update_danger():
@@ -66,9 +70,14 @@ func turn_sprite(dir_name):
 func take_damage(game, dmg):
 	# Don't go below 0 hp
 	hp = max(0, hp - dmg);
+	update_health_bar(game);
 	camera_animation.play("screen_shake");
 	if (hp == 0):
 		is_dead = true;
+
+
+func update_health_bar(game):
+	hp_bar.rect_size.x = game.level.TILE_SIZE * hp / PLAYER_START_HP;
 
 
 func move_to(destination, dir_name):
@@ -104,11 +113,13 @@ func attack(target, dmg, dir_name):
 func _on_MoveAnimation_animation_started(anim_name):
 	#visual.position = Vector2(0,0);
 	game.pause_input = true;
+	ready_to_calc_fog = false;
 
 
 # warning-ignore:unused_argument
 func _on_MoveAnimation_animation_finished(anim_name):
-	#visual.position = Vector2(0,0);
+	visual.position = Vector2(0,0);
 	game.pause_input = false;
+	ready_to_calc_fog = true;
 	#game.call_deferred("update_visuals");
-	game.update_visuals();
+	#game.update_visuals();

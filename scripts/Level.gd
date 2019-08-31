@@ -4,7 +4,7 @@ const Enemy = preload("Enemy.gd");
 
 const TILE_SIZE = 32;
 const LEVEL_SIZES = [
-	Vector2(20, 11),
+	Vector2(21, 11),
 	Vector2(20, 12),
 	Vector2(29, 25),
 	Vector2(28, 29),
@@ -33,6 +33,7 @@ var rooms = [];
 var size;
 var num_rooms;
 var entity_pathfinding_graph = AStar.new();
+var ready_to_calc_fog = false;
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -49,6 +50,7 @@ func start_game():
 
 
 func load_level(n):
+	ready_to_calc_fog = false;
 	level_num = n;
 	var loaded_level = get_node("Level_" + str(level_num));
 	size = LEVEL_SIZES[level_num];
@@ -100,6 +102,10 @@ func load_level(n):
 	
 	var enemy_tiles = loaded_level.get_children()[0];
 	game.enemy_manager.load_from_tileset(enemy_tiles);
+	
+	ready_to_calc_fog = true;
+	#game.call_deferred("update_visuals");
+	#game.update_visuals();
 
 
 func build_level():
@@ -150,7 +156,8 @@ func build_level():
 	else:
 		game.enemy_manager.add_to_level(LEVEL_ENEMY_COUNTS[LEVEL_ENEMY_COUNTS.size() - 1] + level_num);
 	
-	game.call_deferred("update_visuals");
+	#game.call_deferred("update_visuals");
+	#game.update_visuals();
 
 
 func get_random_location_for_entity():
@@ -164,18 +171,42 @@ func get_random_location_for_entity():
 
 
 func update_fog(player_center, space_state):
+	#print("Size X: "+str(size.x) + ", Size Y: "+str(size.y));
 	for x in range(size.x):
 		for y in range(size.y):
+			#print("(x: "+str(x) + ", y: "+str(y)+")");
+			#if (get_distance_to_player(x, y) > game.player.vision_range):
+			#	continue;
+			
 			if (visibility_map.get_cell(x, y) == 0):
-				var x_dir = (1 if (x < player.tile.x) else (-1));
-				var y_dir = (1 if (y < player.tile.y) else (-1));
+				var x_dir = 0;
+				#if (x < game.player.tile.x): x_dir = 1;
+				#if (x > game.player.tile.x): x_dir = -1;
+				x_dir = (1 if (x < game.player.tile.x) else (-1));
+				var y_dir = 0;
+				#if (y < game.player.tile.y): y_dir = 1;
+				#if (y > game.player.tile.y): y_dir = -1;
+				y_dir = (1 if (y < game.player.tile.y) else (-1));
+				
 # warning-ignore:integer_division
 				var test_point = game.tile_to_pixel_center(x, y) + Vector2(x_dir, y_dir)*(TILE_SIZE / 2);
+				var test_point_2 = game.tile_to_pixel_center(x, y);
 				
-				var occlusion = space_state.intersect_ray(player_center, test_point);
+				var occlusion = space_state.intersect_ray(player_center, test_point, [self], tile_map.collision_mask);
+				var occlusion_2 = space_state.intersect_ray(player_center, test_point_2, [self], tile_map.collision_mask);
 				# If no occlusion, or if the object causing occlusion is itself
 				if (!occlusion || (occlusion.position - test_point).length() < 1):
 					visibility_map.set_cell(x, y, -1);
+				if (!occlusion_2 || (occlusion_2.position - test_point_2).length() < 1):
+					visibility_map.set_cell(x, y, -1);
+
+
+func get_distance_to_player(x, y):
+	var a = abs(game.player.tile.x - x);
+	var b = abs(game.player.tile.y - y);
+	var dist = sqrt(pow(a,2)+pow(b,2));
+	
+	return dist;
 
 
 func connect_rooms():
@@ -415,7 +446,10 @@ func set_tile(x, y, type):
 	map[x][y] = type;
 	tile_map.set_cell(x, y, type);
 	
-	if (type == Tile.Floor || type == Tile.Ladder || type == Tile.Ladder_up):
+	#if (type == Tile.Floor):
+		#tile_map.get_cell(x, y).Region.x = ((randi() % 2) * TILE_SIZE);
+	
+	if (is_passable_tile(x, y)):
 		add_tile_to_pathfinding_graph(Vector2(x, y));
 
 
@@ -504,6 +538,7 @@ func go_to_next_level():
 	level_num += 1;
 	player.player_has_moved = false;
 	game.score += 25;
+	ready_to_calc_fog = false;
 	# If there are more levels, go to the next one
 	if (level_num < LEVEL_SIZES.size()):
 		load_level(level_num);

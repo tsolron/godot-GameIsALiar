@@ -124,6 +124,6 @@ func update_enemy_visuals(player_center, space_state):
 		enemy.cur_sprite.position = enemy.tile * game.level.TILE_SIZE;
 		if (!enemy.cur_sprite.visible && enemy.type != EnemyType.Trap):
 			var enemy_center = game.tile_to_pixel_center(enemy.tile.x, enemy.tile.y);
-			var occlusion = space_state.intersect_ray(player_center, enemy_center);
+			var occlusion = space_state.intersect_ray(player_center, enemy_center, [game.player], game.level.tile_map.collision_mask);
 			if (!occlusion):
 				enemy.cur_sprite.visible = true;

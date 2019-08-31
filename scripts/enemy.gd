@@ -20,7 +20,7 @@ var is_dying = false;
 var is_dead = false;
 var faction = -1;
 var did_move = false;
-var path_dist_to_player = 0;
+var path_dist_to_player = INFINITY;
 var is_a_danger = false;
 var action_cooldown = 0;
 var type = 0;
@@ -45,7 +45,7 @@ func init(g, mgr, f, enemy_level, t, x, y):
 	#cur_sprite = EnemyScene.instance();
 	cur_sprite = self;
 	cur_sprite.frame = 0;
-	cur_sprite.visible = true;
+	cur_sprite.visible = false;
 	move_anim = cur_sprite.get_node("AnimationPlayer");
 	
 	match(type):
