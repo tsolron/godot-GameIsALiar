@@ -571,7 +571,7 @@ func is_tile_equal_to(tile, type):
 
 
 func select_tile_from_group(group):
-	return group;
+	#return group;
 	if (is_tile_equal_to(group, [Tile.Floor])):
 		var floor_tile = null;
 		var random_n = randi() % 3;
