@@ -466,7 +466,6 @@ anims/move_right = SubResource( 12 )
 anims/move_up = SubResource( 13 )
 
 [node name="UI" type="CanvasLayer" parent="."]
-editor/display_folded = true
 script = ExtResource( 12 )
 
 [node name="HUD" type="ColorRect" parent="UI"]
@@ -677,7 +676,6 @@ margin_bottom = 144.0
 text = "Play"
 
 [node name="LevelBtns" type="Control" parent="UI/MainMenu"]
-editor/display_folded = true
 margin_left = 112.0
 margin_top = 206.0
 margin_right = 528.0
