@@ -282,6 +282,7 @@ __meta__ = {
 }
 
 [node name="Level" type="Node2D" parent="."]
+editor/display_folded = true
 script = ExtResource( 2 )
 
 [node name="TileMap" type="TileMap" parent="Level"]
@@ -370,6 +371,7 @@ tile_data = PoolIntArray( 196619, 3, 0, 196622, 0, 0, 196623, 3, 0, 196625, 0, 0
 script = ExtResource( 8 )
 
 [node name="Player" type="Sprite" parent="."]
+editor/display_folded = true
 visible = false
 position = Vector2( 32, 160 )
 script = ExtResource( 9 )
@@ -435,7 +437,6 @@ anims/move_right = SubResource( 12 )
 anims/move_up = SubResource( 13 )
 
 [node name="UI" type="CanvasLayer" parent="."]
-editor/display_folded = true
 script = ExtResource( 12 )
 
 [node name="HUD" type="ColorRect" parent="UI"]
@@ -543,40 +544,61 @@ margin_right = 374.0
 margin_bottom = 288.0
 text = "OK"
 
-[node name="Confirm" type="ColorRect" parent="UI"]
+[node name="Paused" type="ColorRect" parent="UI"]
 editor/display_folded = true
 visible = false
 margin_right = 640.0
 margin_bottom = 380.0
 color = Color( 0.141176, 0.141176, 0.141176, 0.717647 )
 
-[node name="Message" type="Label" parent="UI/Confirm"]
-margin_top = 60.0
-margin_right = 640.0
-margin_bottom = 170.0
+[node name="Message" type="Label" parent="UI/Paused"]
+margin_left = 0.950012
+margin_top = 110.15
+margin_right = 640.95
+margin_bottom = 220.15
 text = "Would you like to exit the game?"
 align = 1
 valign = 1
 
-[node name="NoBtn" type="Button" parent="UI/Confirm"]
+[node name="Message2" type="Label" parent="UI/Paused"]
+margin_top = 32.0
+margin_right = 640.0
+margin_bottom = 142.0
+text = "PAUSED"
+align = 1
+valign = 1
+
+[node name="NoBtn" type="Button" parent="UI/Paused"]
 margin_left = 360.0
 margin_top = 244.0
 margin_right = 498.0
 margin_bottom = 288.0
-text = "NO"
+text = "NO (resume)"
 
-[node name="YesBtn" type="Button" parent="UI/Confirm"]
+[node name="YesBtn" type="Button" parent="UI/Paused"]
 margin_left = 142.0
 margin_top = 244.0
 margin_right = 280.0
 margin_bottom = 288.0
-text = "YES"
+text = "YES (exit)"
+
+[node name="MainMenuBtn" type="Button" parent="UI/Paused"]
+margin_left = 486.0
+margin_top = 16.0
+margin_right = 624.0
+margin_bottom = 60.0
+text = "MAIN MENU"
+
+[node name="MuteBtn" type="Button" parent="UI/Paused"]
+margin_left = 560.0
+margin_top = 80.0
+margin_right = 624.0
+margin_bottom = 128.0
+text = "Mute"
 
 [node name="MainMenu" type="ColorRect" parent="UI"]
-editor/display_folded = true
-visible = false
 margin_right = 640.0
-margin_bottom = 380.0
+margin_bottom = 360.0
 color = Color( 0, 0, 0, 1 )
 
 [node name="Message" type="Label" parent="UI/MainMenu"]
@@ -588,68 +610,33 @@ text = "Liar Liar Crown on Fire"
 align = 1
 valign = 1
 
-[node name="NoBtn" type="Button" parent="UI/MainMenu"]
-margin_left = 341.0
-margin_top = 83.4495
-margin_right = 479.0
-margin_bottom = 127.449
+[node name="ExitBtn" type="Button" parent="UI/MainMenu"]
+margin_left = 576.0
+margin_top = 16.0
+margin_right = 624.0
+margin_bottom = 64.0
 text = "Exit"
 
-[node name="NoBtn2" type="Button" parent="UI/MainMenu"]
-margin_left = 578.0
-margin_top = 13.0
-margin_right = 626.0
-margin_bottom = 57.0
+[node name="MuteBtn" type="Button" parent="UI/MainMenu"]
+margin_left = 416.0
+margin_top = 96.0
+margin_right = 464.0
+margin_bottom = 144.0
 text = "Mute"
 
-[node name="YesBtn" type="Button" parent="UI/MainMenu"]
-margin_left = 162.9
-margin_top = 82.4995
-margin_right = 300.9
-margin_bottom = 126.499
+[node name="PlayBtn" type="Button" parent="UI/MainMenu"]
+margin_left = 256.0
+margin_top = 96.0
+margin_right = 384.0
+margin_bottom = 144.0
 text = "Play"
 
-[node name="YesBtn2" type="Button" parent="UI/MainMenu"]
+[node name="Level_0" type="Button" parent="UI/MainMenu"]
 margin_left = 93.5498
 margin_top = 167.05
-margin_right = 231.55
-margin_bottom = 211.05
-text = "Level 1"
-
-[node name="YesBtn5" type="Button" parent="UI/MainMenu"]
-margin_left = 89.7498
-margin_top = 243.05
-margin_right = 227.75
-margin_bottom = 287.05
-text = "Level 1"
-
-[node name="YesBtn3" type="Button" parent="UI/MainMenu"]
-margin_left = 272.15
-margin_top = 168.95
-margin_right = 410.15
-margin_bottom = 212.95
-text = "Level 2"
-
-[node name="YesBtn6" type="Button" parent="UI/MainMenu"]
-margin_left = 268.35
-margin_top = 244.95
-margin_right = 406.35
-margin_bottom = 288.95
-text = "Level 2"
-
-[node name="YesBtn4" type="Button" parent="UI/MainMenu"]
-margin_left = 446.951
-margin_top = 168.0
-margin_right = 584.951
-margin_bottom = 212.0
-text = "Level 3"
-
-[node name="YesBtn7" type="Button" parent="UI/MainMenu"]
-margin_left = 443.151
-margin_top = 244.0
-margin_right = 581.151
-margin_bottom = 288.0
-text = "Level 3"
+margin_right = 221.55
+margin_bottom = 199.05
+text = "Level 0"
 
 [node name="Continue" type="ColorRect" parent="UI"]
 editor/display_folded = true
@@ -689,15 +676,11 @@ volume_db = -15.0
 [connection signal="pressed" from="UI/Win/ResetBtn" to="." method="_on_ResetBtn_pressed"]
 [connection signal="pressed" from="UI/Lose/ResetBtn" to="." method="_on_ResetBtn_pressed"]
 [connection signal="pressed" from="UI/Dialog/OKBtn" to="UI" method="_on_OKBtn_pressed"]
-[connection signal="pressed" from="UI/Confirm/NoBtn" to="UI" method="_on_NoBtn_pressed"]
-[connection signal="pressed" from="UI/Confirm/YesBtn" to="UI" method="_on_YesBtn_pressed"]
-[connection signal="pressed" from="UI/MainMenu/NoBtn" to="UI" method="_on_NoBtn_pressed"]
-[connection signal="pressed" from="UI/MainMenu/NoBtn2" to="UI" method="_on_NoBtn_pressed"]
-[connection signal="pressed" from="UI/MainMenu/YesBtn" to="UI" method="_on_YesBtn_pressed"]
-[connection signal="pressed" from="UI/MainMenu/YesBtn2" to="UI" method="_on_YesBtn_pressed"]
-[connection signal="pressed" from="UI/MainMenu/YesBtn5" to="UI" method="_on_YesBtn_pressed"]
-[connection signal="pressed" from="UI/MainMenu/YesBtn3" to="UI" method="_on_YesBtn_pressed"]
-[connection signal="pressed" from="UI/MainMenu/YesBtn6" to="UI" method="_on_YesBtn_pressed"]
-[connection signal="pressed" from="UI/MainMenu/YesBtn4" to="UI" method="_on_YesBtn_pressed"]
-[connection signal="pressed" from="UI/MainMenu/YesBtn7" to="UI" method="_on_YesBtn_pressed"]
+[connection signal="pressed" from="UI/Paused/NoBtn" to="UI" method="_on_NoBtn_pressed"]
+[connection signal="pressed" from="UI/Paused/YesBtn" to="UI" method="_on_ExitBtn_pressed"]
+[connection signal="pressed" from="UI/Paused/MainMenuBtn" to="UI" method="show_main_menu"]
+[connection signal="pressed" from="UI/Paused/MuteBtn" to="UI" method="_on_MuteBtn_pressed"]
+[connection signal="pressed" from="UI/MainMenu/ExitBtn" to="UI" method="_on_ExitBtn_pressed"]
+[connection signal="pressed" from="UI/MainMenu/MuteBtn" to="UI" method="_on_MuteBtn_pressed"]
+[connection signal="pressed" from="UI/MainMenu/PlayBtn" to="UI" method="_on_PlayBtn_pressed"]
 [connection signal="pressed" from="UI/Continue/ContinueBtn" to="UI" method="_on_ContinueBtn_pressed"]

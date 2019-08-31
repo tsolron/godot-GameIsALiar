@@ -1,14 +1,17 @@
 extends CanvasLayer
 
 
+onready var game = self.get_parent();
+
 var is_message_open = false;
 
 
 func start_game():
 	$Win.visible = false;
 	$Lose.visible = false;
-	$Dialog.visible = true;
-	is_message_open = true;
+	#$Dialog.visible = true;
+	$MainMenu.visible = false;
+	is_message_open = false;
 
 
 func show_lose():
@@ -32,7 +35,12 @@ func show_continue():
 
 
 func show_exit():
-	$Confirm.visible = true;
+	$Paused.visible = true;
+	is_message_open = true;
+
+
+func show_main_menu():
+	$MainMenu.visible = true;
 	is_message_open = true;
 
 
@@ -52,10 +60,25 @@ func _on_ContinueBtn_pressed():
 	is_message_open = false;
 
 
-func _on_YesBtn_pressed():
-	get_tree().quit();
-
-
 func _on_NoBtn_pressed():
-	$Confirm.visible = false;
+	$Paused.visible = false;
 	is_message_open = false;
+
+
+func _on_PlayBtn_pressed():
+	game.start_game();
+
+
+func _on_MuteBtn_pressed():
+	if (!game.audio.is_muted):
+		game.audio.mute();
+		$MainMenu/MuteBtn.text = "Unmute";
+		$Paused/MuteBtn.text = "Unmute";
+	elif (game.audio.is_muted):
+		game.audio.unmute();
+		$MainMenu/MuteBtn.text = "Mute";
+		$Paused/MuteBtn.text = "Mute";
+
+
+func _on_ExitBtn_pressed():
+	game.shutdown();

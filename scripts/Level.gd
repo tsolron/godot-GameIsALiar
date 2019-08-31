@@ -21,7 +21,7 @@ const MAX_ROOM_DIMENSION = 20;
 # Floor: Inside a room
 # Ladder: Connects different levels
 # Stone: Default everywhere
-enum Tile {Wall, Door, Floor, Ladder, Stone, Ladder_up};
+enum Tile {Wall, Door, Floor, Ladder, Stone, Ladder_up, Floor_2, Floor_3};
 
 onready var tile_map = $TileMap;
 onready var visibility_map = $VisibilityMap;
@@ -220,15 +220,15 @@ func connect_rooms():
 	for x in range(size.x):
 		for y in range(size.y):
 			# If it's Stone, we'll add it to our graph as a tile that may be used to connect two rooms
-			if map[x][y] == Tile.Stone:
+			if (is_tile_equal_to(map[x][y], [Tile.Stone])):
 				stone_graph.add_point(point_id, Vector3(x, y, 0));
 				
 				# And add connections to the tile above and to the left of this one
-				if (x > 0 && map[x - 1][y] == Tile.Stone):
+				if (x > 0 && is_tile_equal_to(map[x - 1][y], [Tile.Stone])):
 					var left_point = stone_graph.get_closest_point(Vector3(x - 1, y, 0));
 					stone_graph.connect_points(point_id, left_point);
 					
-				if (y > 0 && map[x][y - 1] == Tile.Stone):
+				if (y > 0 && is_tile_equal_to(map[x][y - 1], [Tile.Stone])):
 					var above_point = stone_graph.get_closest_point(Vector3(x, y - 1, 0));
 					stone_graph.connect_points(point_id, above_point);
 					
@@ -445,7 +445,10 @@ func cut_regions(free_regions, region_to_remove):
 
 func set_tile(x, y, type):
 	map[x][y] = type;
-	tile_map.set_cell(x, y, type);
+	if (is_tile_equal_to(type, [Tile.Floor])):
+		tile_map.set_cell(x, y, select_tile_from_group(Tile.Floor));
+	else:
+		tile_map.set_cell(x, y, type);
 	
 	#if (type == Tile.Floor):
 		#tile_map.get_cell(x, y).Region.x = ((randi() % 2) * TILE_SIZE);
@@ -456,9 +459,8 @@ func set_tile(x, y, type):
 
 func is_passable_tile(x, y):
 	var is_passable = false;
-	match (map[x][y]):
-		Tile.Floor, Tile.Ladder, Tile.Ladder_up:
-			is_passable = true;
+	if (is_tile_equal_to(map[x][y], [Tile.Floor, Tile.Ladder, Tile.Ladder_up])):
+		is_passable = true;
 	return is_passable;
 
 
@@ -502,34 +504,35 @@ func entity_try_move(entity, dx, dy, dir_name):
 		tile_type = map[x][y];
 	
 	# Match is like a switch/case statement in other languages.
-	match tile_type:
-		Tile.Floor, Tile.Ladder, Tile.Ladder_up:
-			var is_blocked = false;
-			
-			# Enemy is blocking movement
-			var blocking_enemy = game.enemy_manager.get_enemy_blocking_movement(x, y);
-			if (is_instance_valid(blocking_enemy)):
-				is_blocked = true;
-				blocker = blocking_enemy;
-			
-			# Player is blocking movement
-			# If entity is the player, this conditional will be false
-			if (move_tile == game.player.tile):
-				is_blocked = true;
-				blocker = game.player;
-			
-			# If you're trying to move onto Floor and there are no enemies, success!
-			if (!is_blocked):
-				if (tile_type == Tile.Ladder && entity.faction == 0):
-					go_to_next_level();
-					return null;
-				else:
-					entity.move_to(Vector2(x, y), dir_name);
+	#match tile_type:
+	if (is_tile_equal_to(tile_type, [Tile.Floor, Tile.Ladder, Tile.Ladder_up])):
+		var is_blocked = false;
 		
-		Tile.Door:
-			# If you're trying to open a door, you did it!
-			# Next turn you can move to where the door was
-			set_tile(x, y, Tile.Floor);
+		# Enemy is blocking movement
+		var blocking_enemy = game.enemy_manager.get_enemy_blocking_movement(x, y);
+		if (is_instance_valid(blocking_enemy)):
+			is_blocked = true;
+			blocker = blocking_enemy;
+		
+		# Player is blocking movement
+		# If entity is the player, this conditional will be false
+		if (move_tile == game.player.tile):
+			is_blocked = true;
+			blocker = game.player;
+		
+		# If you're trying to move onto Floor and there are no enemies, success!
+		if (!is_blocked):
+			#if (tile_type == Tile.Ladder && entity.faction == 0):
+			if (is_tile_equal_to(tile_type, [Tile.Ladder]) && entity.faction == 0):
+				go_to_next_level();
+				return null;
+			else:
+				entity.move_to(Vector2(x, y), dir_name);
+	
+	if (is_tile_equal_to(tile_type, [Tile.Door])):
+		# If you're trying to open a door, you did it!
+		# Next turn you can move to where the door was
+		set_tile(x, y, Tile.Floor);
 	
 	return blocker;
 
@@ -549,3 +552,33 @@ func go_to_next_level():
 		#	game.ui.show_continue();
 		game.win = true;
 		#build_level();
+
+
+func is_tile_equal_to(tile, type):
+	for i in range(type.size()):
+		match(type[i]):
+			Tile.Wall, Tile.Door, Tile.Ladder, Tile.Stone, Tile.Ladder_up:
+				if (tile == type[i]):
+					return true;
+			Tile.Floor:
+				if (tile == Tile.Floor):
+					return true;
+				if (tile == Tile.Floor_2):
+					return true;
+				if (tile == Tile.Floor_3):
+					return true;
+	return false;
+
+
+func select_tile_from_group(group):
+	return group;
+	if (is_tile_equal_to(group, [Tile.Floor])):
+		var floor_tile = null;
+		var random_n = randi() % 3;
+		match(random_n):
+			0: floor_tile = Tile.Floor;
+			1: floor_tile = Tile.Floor_2;
+			2: floor_tile = Tile.Floor_3;
+		return floor_tile;
+	else:
+		return group;

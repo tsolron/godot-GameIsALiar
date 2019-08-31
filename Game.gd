@@ -26,7 +26,8 @@ func _ready():
 	#OS.set_window_size(Vector2(1280, 720));
 	randomize();
 	# Build first level
-	start_game();
+	ui.is_message_open = true;
+	#start_game();
 	#update_visuals();
 
 
@@ -68,7 +69,8 @@ func _input(event):
 
 # warning-ignore:unused_argument
 func _process(delta):
-	update_visuals();
+	if (!ui.is_message_open):
+		update_visuals();
 
 
 func tick():
@@ -139,3 +141,6 @@ func check_if_fog_ready():
 func _on_ResetBtn_pressed():
 	start_game();
 
+
+func shutdown():
+	get_tree().quit();
