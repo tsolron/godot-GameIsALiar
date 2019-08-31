@@ -73,6 +73,13 @@ func _process(delta):
 		update_visuals();
 
 
+func reset_vars():
+	score = 0;
+	win = false;
+	pause_input = false;
+	ready_to_calc_fog = false;
+
+
 func tick():
 	if (player.player_has_moved):
 		enemy_manager.tick();
@@ -117,7 +124,7 @@ func check_for_lose():
 func start_game(n):
 	score = 0;
 	level.start_game(n);
-	player.start_game();
+	player.start_game(self);
 	ui.start_game();
 	audio.start_game();
 	# Waits one frame before calling update_visuals() so all objects exist at first run
@@ -139,6 +146,8 @@ func check_if_fog_ready():
 
 
 func _on_ResetBtn_pressed():
+	reset_vars();
+	ui.show_main_menu();
 	start_game(0);
 
 

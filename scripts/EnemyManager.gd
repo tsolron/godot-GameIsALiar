@@ -127,3 +127,15 @@ func update_enemy_visuals(player_center, space_state):
 			var occlusion = space_state.intersect_ray(player_center, enemy_center, [game.player], game.level.tile_map.collision_mask);
 			if (!occlusion):
 				enemy.visible = true;
+
+
+func hide_mine_if_over(tile):
+	for enemy in enemies:
+		if (enemy.tile.x == tile.x && enemy.tile.y == tile.y && enemy.type == EnemyType.Trap):
+			enemy.visible = false;
+
+
+func unhide_mine_if_not_over(tile):
+	for enemy in enemies:
+		if (enemy.tile.x == tile.x && enemy.tile.y == tile.y && enemy.type == EnemyType.Trap):
+			enemy.visible = true;

@@ -8,11 +8,13 @@ const LEVEL_SIZES = [
 	Vector2(20, 12),
 	Vector2(29, 25),
 	Vector2(28, 29),
-	Vector2(28, 29),
+	Vector2(32, 24),
+	Vector2(38, 28),
+	Vector2(27, 26),
 ];
 
-const LEVEL_ROOM_COUNTS = [1, 2, 4, 4, 4];
-const LEVEL_ENEMY_COUNTS = [2, 5, 8, 6, 8];
+const LEVEL_ROOM_COUNTS = [1, 2, 4, 4, 4, 4, 4, 4, 4, 4];
+const LEVEL_ENEMY_COUNTS = [2, 5, 8, 6, 8, 8, 8, 8, 8, 8];
 const MIN_ROOM_DIMENSION = 8;
 const MAX_ROOM_DIMENSION = 20;
 

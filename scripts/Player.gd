@@ -29,8 +29,9 @@ func _ready():
 	faction = game.Faction.Player;
 
 
-func start_game():
+func start_game(game):
 	hp = PLAYER_START_HP;
+	update_health_bar(game)
 	is_dead = false;
 	is_ready = false;
 	cur_sprite = idle_blue;

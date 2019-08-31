@@ -108,11 +108,11 @@ func _on_Level_4_pressed():
 
 
 func _on_Level_5_pressed():
-	pass # Replace with function body.
+	game.start_game(5);
 
 
 func _on_Level_6_pressed():
-	pass # Replace with function body.
+	game.start_game(6);
 
 
 func _on_Level_7_pressed():

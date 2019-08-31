@@ -133,6 +133,7 @@ func act(game):
 	path_dist_to_player = INFINITY;
 	did_move = false;
 	action_cooldown -= 1;
+	var origin = tile;
 	
 	var my_point = game.level.entity_pathfinding_graph.get_closest_point(Vector3(tile.x, tile.y, 0));
 	var player_point = game.level.entity_pathfinding_graph.get_closest_point(Vector3(game.player.tile.x, game.player.tile.y, 0));
@@ -173,6 +174,8 @@ func act(game):
 						action_cooldown = COOLDOWN_TURNS;
 						attack(target, 1, dir_name);
 			if (did_move):
+				manager.hide_mine_if_over(tile);
+				manager.unhide_mine_if_not_over(origin);
 				path_dist_to_player -= 1;
 
 
