@@ -520,6 +520,8 @@ margin_bottom = 288.0
 text = "Play Again?"
 
 [node name="Dialog" type="ColorRect" parent="UI"]
+editor/display_folded = true
+visible = false
 margin_right = 640.0
 margin_bottom = 360.0
 color = Color( 0.141176, 0.141176, 0.141176, 0.901961 )
@@ -611,7 +613,6 @@ text = "Mute"
 
 [node name="MainMenu" type="ColorRect" parent="UI"]
 editor/display_folded = true
-visible = false
 margin_right = 640.0
 margin_bottom = 360.0
 color = Color( 0, 0, 0, 1 )
